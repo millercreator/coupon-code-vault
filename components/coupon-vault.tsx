@@ -107,25 +107,7 @@ export default function CouponVault() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-2xl">
-        {/* Header */}
-        <div className="border-b border-border bg-card px-4 py-8 sm:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Lock className="h-5 w-5" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Coupon Vault</h1>
-                <p className="text-sm text-muted-foreground">Secure discount storage</p>
-              </div>
-            </div>
-            <Button onClick={() => setShowForm(true)} className="gap-2" size="sm">
-              <Plus className="h-4 w-4" />
-              Add Coupon
-            </Button>
-          </div>
-        </div>
-
+        
         <div className="space-y-6 px-4 py-6 sm:px-6">
           {/* Search */}
           <div className="relative">
