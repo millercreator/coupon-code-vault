@@ -1,0 +1,167 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Search, X, Lock } from "lucide-react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import CouponCard from "./coupon-card";
+import type { Coupon } from "@/lib/types";
+
+interface SearchModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  coupons?: Coupon[]; // Made optional to handle undefined
+  onDeleteCoupon: (id: string) => void;
+}
+
+export default function SearchModal({
+  open,
+  onOpenChange,
+  coupons,
+  onDeleteCoupon,
+}: SearchModalProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredCoupons, setFilteredCoupons] = useState<Coupon[]>([]);
+
+  useEffect(() => {
+    filterCoupons(searchTerm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, coupons]);
+
+  const filterCoupons = (term: string) => {
+    // Guard against undefined coupons
+    if (!Array.isArray(coupons)) {
+      setFilteredCoupons([]);
+      return;
+    }
+    const searchLower = term.toLowerCase();
+    const filtered = coupons.filter((coupon) => {
+      return (
+        coupon.store.toLowerCase().includes(searchLower) ||
+        coupon.code.toLowerCase().includes(searchLower) ||
+        coupon.discount.toLowerCase().includes(searchLower)
+      );
+    });
+    setFilteredCoupons(filtered);
+  };
+
+  const activeCoupons = Array.isArray(filteredCoupons)
+    ? filteredCoupons.filter((c) => {
+        const expiry = new Date(c.expiryDate).getTime();
+        return expiry > Date.now();
+      })
+    : [];
+
+  const expiredCoupons = Array.isArray(filteredCoupons)
+    ? filteredCoupons.filter((c) => {
+        const expiry = new Date(c.expiryDate).getTime();
+        return expiry <= Date.now();
+      })
+    : [];
+
+  // Reset search when modal closes
+  useEffect(() => {
+    if (!open) {
+      setSearchTerm("");
+    }
+  }, [open]);
+
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Portal>
+      <Dialog.Overlay className="fixed inset-0 z-[1000] bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200 ease-out" />
+      <Dialog.Content className="fixed inset-0 z-[1001] flex flex-col bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200 ease-out outline-none">
+        {/* Top Navbar */}
+        <nav className="sticky top-0 z-[1002] w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+          <div className="container mx-auto flex h-14 items-center justify-between px-4 max-w-2xl">
+            <Dialog.Title className="text-base font-semibold">
+              Search Coupon
+            </Dialog.Title>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="h-7 w-7 p-1"
+              aria-label="Close search"
+            >
+              <X />
+            </Button>
+          </div>
+        </nav>
+
+          {/* Search Content */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="mx-auto max-w-2xl">
+              <div className="space-y-6 px-4 py-6 sm:px-6">
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by store, code, or discount..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                    autoFocus
+                  />
+                </div>
+
+                {/* Active Coupons */}
+                {activeCoupons.length > 0 && (
+                  <div className="space-y-3">
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Active ({activeCoupons.length})
+                    </h2>
+                    <div className="grid gap-4">
+                      {activeCoupons.map((coupon) => (
+                        <CouponCard
+                          key={coupon.id}
+                          coupon={coupon}
+                          onDelete={onDeleteCoupon}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Expired Coupons */}
+                {expiredCoupons.length > 0 && (
+                  <div className="space-y-3 opacity-60">
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Expired ({expiredCoupons.length})
+                    </h2>
+                    <div className="grid gap-4">
+                      {expiredCoupons.map((coupon) => (
+                        <CouponCard
+                          key={coupon.id}
+                          coupon={coupon}
+                          onDelete={onDeleteCoupon}
+                          isExpired
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {filteredCoupons.length === 0 && (
+                  <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-12 text-center">
+                    <Lock className="mb-3 h-12 w-12 text-muted-foreground/30" />
+                    <p className="text-foreground font-medium">
+                      {searchTerm ? "No coupons found" : "No coupons yet"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {searchTerm
+                        ? "Try adjusting your search"
+                        : "Add your first coupon to get started"}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
