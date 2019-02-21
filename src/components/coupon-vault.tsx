@@ -1,124 +1,55 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Search, Lock } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import CouponForm from "./coupon-form"
-import CouponCard from "./coupon-card"
-import type { Coupon } from "@/lib/types"
+import { useState, useEffect } from "react";
+import type { Coupon } from "@/lib/types";
+import { SnapCarousel } from "@/components/snap-carousel";
 
-const DEFAULT_COUPONS: Coupon[] = [
-  { id: "1", store: "Amazon", code: "SAVE20NOW", discount: "20% off orders over $50", expiryDate: "2025-12-31" },
-  { id: "2", store: "Target", code: "CIRCLE15", discount: "$15 off $60 purchase", expiryDate: "2025-11-30" },
-  { id: "3", store: "Best Buy", code: "TECH10", discount: "10% off electronics", expiryDate: "2025-10-15" },
-  { id: "4", store: "Starbucks", code: "COFFEE5", discount: "$5 off any drink", expiryDate: "2024-11-20" },
-  { id: "5", store: "Nike", code: "HOLIDAY25", discount: "25% off entire order", expiryDate: "2025-12-25" },
-]
+const DEFAULT_COUPONS: Coupon[] = [];
 
 export default function CouponVault() {
-  const [coupons, setCoupons] = useState<Coupon[]>([])
-  const [filteredCoupons, setFilteredCoupons] = useState<Coupon[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [showForm, setShowForm] = useState(false)
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+
+  const logos = ["G", "o", "o", "g", "l", "e", "1", "2", "3"];
 
   useEffect(() => {
-    const saved = localStorage.getItem("coupons")
+    const saved = localStorage.getItem("coupons");
     if (saved) {
       try {
-        setCoupons(JSON.parse(saved))
+        setCoupons(JSON.parse(saved));
       } catch (e) {
-        console.error("Failed to load coupons:", e)
+        console.error("Failed to load coupons:", e);
       }
     } else {
-      setCoupons(DEFAULT_COUPONS)
+      setCoupons(DEFAULT_COUPONS);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("coupons", JSON.stringify(coupons))
-    filterCoupons(searchTerm)
-  }, [coupons, searchTerm])
-
-  const filterCoupons = (term: string) => {
-    setSearchTerm(term)
-    const searchLower = term.toLowerCase()
-    const filtered = coupons.filter((c) =>
-      c.store.toLowerCase().includes(searchLower) ||
-      c.code.toLowerCase().includes(searchLower) ||
-      c.discount.toLowerCase().includes(searchLower)
-    )
-    setFilteredCoupons(filtered)
-  }
-
-  const handleAddCoupon = (newCoupon: Coupon) => {
-    setCoupons([{ ...newCoupon, id: Date.now().toString() }, ...coupons])
-    setShowForm(false)
-  }
-
-  const handleDeleteCoupon = (id: string) => {
-    setCoupons(coupons.filter((c) => c.id !== id))
-  }
-
-  const activeCoupons = filteredCoupons.filter((c) => new Date(c.expiryDate).getTime() > Date.now())
-  const expiredCoupons = filteredCoupons.filter((c) => new Date(c.expiryDate).getTime() <= Date.now())
+    localStorage.setItem("coupons", JSON.stringify(coupons));
+  }, [coupons]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-2xl">
-        <div className="space-y-6 px-4 py-6 sm:px-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search by store, code, or discount..."
-              value={searchTerm}
-              onChange={(e) => filterCoupons(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          {showForm && (
-            <div className="rounded-lg border border-border bg-card p-6">
-              <CouponForm onAdd={handleAddCoupon} onCancel={() => setShowForm(false)} />
-            </div>
+    <div className="min-h-screen mx-auto max-w-2xl">
+      <div style={{ maxWidth: 720, margin: "40px auto" }}>
+        <h3 style={{ textAlign: "center" }}>Google</h3>
+        <SnapCarousel
+          items={logos}
+          itemSize={64}
+          gap={8}
+          lockSpacing={6}
+          lockStyle={{
+            borderColor: "#1a1a1a",
+            borderWidth: 2.5,
+            borderRadius: 12,
+          }}
+          renderItemAction={(ch, locked) => (
+            <span style={{ fontSize: 22, opacity: locked ? 1 : 0.7 }}>
+              {ch}
+            </span>
           )}
-
-          {activeCoupons.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Active ({activeCoupons.length})
-              </h2>
-              <div className="grid gap-4">
-                {activeCoupons.map((coupon) => (
-                  <CouponCard key={coupon.id} coupon={coupon} onDelete={handleDeleteCoupon} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {expiredCoupons.length > 0 && (
-            <div className="space-y-3 opacity-60">
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Expired ({expiredCoupons.length})
-              </h2>
-              <div className="grid gap-4">
-                {expiredCoupons.map((coupon) => (
-                  <CouponCard key={coupon.id} coupon={coupon} onDelete={handleDeleteCoupon} isExpired />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {filteredCoupons.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-12 text-center">
-              <Lock className="mb-3 h-12 w-12 text-muted-foreground/30" />
-              <p className="text-foreground font-medium">{searchTerm ? "No coupons found" : "No coupons yet"}</p>
-              <p className="text-sm text-muted-foreground">
-                {searchTerm ? "Try adjusting your search" : "Add your first coupon to get started"}
-              </p>
-            </div>
-          )}
-        </div>
+          onChangeAction={(i) => console.log("locked:", i)}
+        />
       </div>
     </div>
-  )
+  );
 }
