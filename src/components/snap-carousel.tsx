@@ -6,20 +6,120 @@ import React, {
   useState,
   useLayoutEffect,
   useCallback,
+  useImperativeHandle,
+  forwardRef,
 } from "react";
+import { cn } from "@/lib/utils";
 
+type SnapCarouselClassNames = {
+  /**
+   * Class name for the carousel root container.
+   */
+  root?: string;
+  /**
+   * Class name for the carousel track (the scrolling flex row of items).
+   */
+  track?: string;
+  /**
+   * Class name for every carousel item.
+   */
+  item?: string;
+  /**
+   * Class name for the currently locked (active/centered) carousel item.
+   */
+  activeItem?: string;
+  /**
+   * Class name for the lock-case overlay element.
+   */
+  lock?: string;
+};
+
+/**
+ * Props for the SnapCarousel component.
+ *
+ * @template T - The type of the item in the carousel.
+ */
 type SnapCarouselProps<T> = {
+  /**
+   * The array of items to display in the carousel.
+   */
   items: T[];
+
+  /**
+   * Optional custom rendering function for each item.
+   * @param item - The item to render.
+   * @param isLocked - Whether this item is currently "locked" (active/centered).
+   * @returns The React node to render.
+   */
   renderItemAction?: (item: T, isLocked: boolean) => React.ReactNode;
+
+  /**
+   * The size (width and height) of each carousel item, in pixels.
+   * Defaults to 72.
+   */
   itemSize?: number;
+
+  /**
+   * The space (gap) between carousel items, in pixels.
+   * Defaults to 16.
+   */
   gap?: number;
+
+  /**
+   * Callback fired when the locked (centered) item changes.
+   * @param index - Index of the new active/locked item.
+   * @param item  - The new active/locked item.
+   */
   onChangeAction?: (index: number, item: T) => void;
+
+  /**
+   * Additional CSS class for the carousel container.
+   */
   className?: string;
-  // Space between the active item and the lock-case (px)
+
+  /**
+   * Space (in pixels) between the active item and the lock-case overlay.
+   * This makes the lock-case border appear inset.
+   * Defaults to 4.
+   */
   lockSpacing?: number;
-  // Custom styles/classes for the lock-case
+
+  /**
+   * Custom React style object for the lock-case overlay.
+   */
   lockStyle?: React.CSSProperties;
-  lockClassName?: string;
+
+  /**
+   * Optional class names for different carousel elements.
+   * Allows for polymorphic styling (e.g., via Tailwind or CSS Modules).
+   */
+  classNames?: SnapCarouselClassNames;
+
+  /**
+   * Optional per-item override function to customize item props (class/style/aria).
+   * Useful for special styling, aria attributes, etc., on a per-item basis.
+   * @param item - The item.
+   * @param index - The index of the item.
+   * @param isLocked - Whether this item is currently locked.
+   * @returns Additional props to spread onto the item button.
+   */
+  getItemPropsAction?: (
+    item: T,
+    index: number,
+    isLocked: boolean
+  ) => {
+    className?: string;
+    style?: React.CSSProperties;
+    [ariaAttr: `aria-${string}`]: any;
+  };
+
+  /**
+   * Imperative scrolling method, provided for advanced use.
+   * Usually not needed unless you want to control carousel scroll from outside.
+   * @param index - The index to scroll to.
+   * @param animate - Whether to animate the scroll. Defaults to true.
+   */
+  scrollToIndex?: (index: number, animate?: boolean) => void;
 };
 
 const SIDE_PADDING = 24;
@@ -141,6 +241,14 @@ function useSnapCarousel<T>(
     [centerIndex]
   );
 
+  // Provide an imperative scrollToIndex
+  const scrollToIndex = useCallback(
+    (i: number, animate: boolean = true) => {
+      centerIndex(i, animate);
+    },
+    [centerIndex]
+  );
+
   return {
     containerRef,
     trackRef,
@@ -151,6 +259,7 @@ function useSnapCarousel<T>(
     handlePointerMove,
     handlePointerUp,
     handleItemClick,
+    scrollToIndex,
   };
 }
 
@@ -163,22 +272,18 @@ function LockCase({
   style?: React.CSSProperties;
   className?: string;
 }) {
+  // Note: we use inline styles for variable dimensions that can't be handled with static Tailwind classes,
+  // but all visual style and static layout is in className.
   return (
     <div
       aria-hidden
-      className={className}
+      className={cn(
+        "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[12px] border-[3px] border-[#111] shadow-[0_2px_0_0_rgba(0,0,0,0.2)] pointer-events-none z-[2]",
+        className
+      )}
       style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: size,
-        height: size,
-        borderRadius: 12,
-        border: "3px solid #111",
-        boxShadow: "0 2px 0 rgba(0,0,0,0.2)",
-        pointerEvents: "none",
-        zIndex: 2,
+        width: "var(--snap-item-size)",
+        height: "var(--snap-item-size)",
         ...style,
       }}
     />
@@ -200,6 +305,8 @@ function CarouselTrack<T>({
   handlePointerUp,
   handleItemClick,
   lockedScale,
+  classNames = {},
+  getItemPropsAction,
 }: {
   items: T[];
   renderItemAction?: (item: T, isLocked: boolean) => React.ReactNode;
@@ -215,7 +322,18 @@ function CarouselTrack<T>({
   handlePointerUp: () => void;
   handleItemClick: (i: number) => void;
   lockedScale: number;
+  classNames?: SnapCarouselClassNames;
+  getItemPropsAction?: (
+    item: T,
+    index: number,
+    isLocked: boolean
+  ) => {
+    className?: string;
+    style?: React.CSSProperties;
+    [ariaAttr: `aria-${string}`]: any;
+  };
 }) {
+  // For dynamic styles that cannot be encoded in Tailwind, we still use style
   return (
     <div
       ref={trackRef}
@@ -223,50 +341,52 @@ function CarouselTrack<T>({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
+      className={cn(
+        "flex items-center h-full select-none",
+        dragging ? "cursor-grabbing" : "cursor-grab",
+        classNames.track
+      )}
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap,
-        padding: `0 ${sidePadding}px`,
-        height: "100%",
+        gap: "var(--snap-gap)",
+        padding: `0 var(--snap-side-padding)`,
         transform: `translateX(${Math.round(offset)}px)`,
         transition: trackRef.current?.getAttribute("data-animate")
           ? "transform 260ms cubic-bezier(.2,.9,.2,1.02)"
           : "none",
-        cursor: dragging ? "grabbing" : "grab",
         willChange: "transform",
         userSelect: "none",
       }}
     >
       {items.map((item, i) => {
         const isLocked = i === lockedIndex;
+        const itemProps = getItemPropsAction?.(item, i, isLocked) ?? {};
         return (
           <button
             key={i}
             type="button"
             onClick={() => handleItemClick(i)}
+            className={cn(
+              "rounded-[12px] border-2 border-transparent grid place-items-center focus:outline-none transition duration-200 flex-shrink-0 cursor-pointer",
+              classNames.item,
+              isLocked && classNames.activeItem,
+              itemProps.className
+            )}
             style={{
-              width: itemSize,
-              height: itemSize,
-              borderRadius: 12,
-              border: "2px solid transparent",
-              background: "#ddd",
-              display: "grid",
-              placeItems: "center",
+              width: "var(--snap-item-size)",
+              height: "var(--snap-item-size)",
               flex: "0 0 auto",
-              transition: "opacity 200ms, transform 200ms",
               transform: `scale(${isLocked ? lockedScale : 1})`,
               opacity: isLocked ? 1 : 0.8,
-              outline: "none",
-              cursor: "pointer",
+              ...itemProps.style,
             }}
             tabIndex={0}
             aria-pressed={isLocked}
+            {...itemProps}
           >
             {renderItemAction ? (
               renderItemAction(item, isLocked)
             ) : (
-              <span style={{ fontWeight: 600 }}>{String(item)}</span>
+              <span className="font-semibold">{String(item)}</span>
             )}
           </button>
         );
@@ -275,17 +395,24 @@ function CarouselTrack<T>({
   );
 }
 
-export function SnapCarousel<T>({
-  items,
-  renderItemAction,
-  itemSize = 72,
-  gap = 16,
-  onChangeAction,
-  className,
-  lockSpacing = 4,
-  lockStyle,
-  lockClassName,
-}: SnapCarouselProps<T>) {
+// Forward ref so caller can call scrollToIndex
+export const SnapCarousel = forwardRef(function SnapCarousel_<T>(
+  {
+    items,
+    renderItemAction,
+    itemSize = 72,
+    gap = 16,
+    onChangeAction,
+    className,
+    lockSpacing = 4,
+    lockStyle,
+    classNames = {},
+    getItemPropsAction,
+  }: SnapCarouselProps<T>,
+  ref: React.Ref<
+    { scrollToIndex: (index: number, animate?: boolean) => void } | undefined
+  >
+) {
   const {
     containerRef,
     trackRef,
@@ -296,26 +423,44 @@ export function SnapCarousel<T>({
     handlePointerMove,
     handlePointerUp,
     handleItemClick,
+    scrollToIndex,
   } = useSnapCarousel(items, itemSize, gap, onChangeAction);
 
   const lockedScale = Math.max(0, (itemSize - 2 * lockSpacing) / itemSize);
 
+  // Expose scrollToIndex via ref
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToIndex,
+    }),
+    [scrollToIndex]
+  );
+
   return (
     <div
       ref={containerRef}
-      className={["snap-carousel", className].filter(Boolean).join(" ")}
+      className={cn(
+        "relative w-full overflow-hidden touch-none select-none",
+        className,
+        classNames.root
+      )}
       style={{
-        position: "relative",
-        width: "100%",
-        overflow: "hidden",
-        height: itemSize,
-        touchAction: "none",
-        userSelect: "none",
+        // CSS custom properties for theming
+        ["--snap-item-size" as any]: `${itemSize}px`,
+        ["--snap-gap" as any]: `${gap}px`,
+        ["--snap-side-padding" as any]: `${SIDE_PADDING}px`,
+        ["--snap-lock-spacing" as any]: `${lockSpacing}px`,
+        height: "var(--snap-item-size)",
       }}
       tabIndex={-1}
       aria-label="Snap carousel"
     >
-      <LockCase size={itemSize} style={lockStyle} className={lockClassName} />
+      <LockCase
+        size={itemSize}
+        style={lockStyle}
+        className={cn(classNames.lock)}
+      />
       <CarouselTrack
         items={items}
         renderItemAction={renderItemAction}
@@ -331,7 +476,15 @@ export function SnapCarousel<T>({
         handlePointerUp={handlePointerUp}
         handleItemClick={handleItemClick}
         lockedScale={lockedScale}
+        classNames={classNames}
+        getItemPropsAction={getItemPropsAction}
       />
     </div>
   );
-}
+}) as <T>(
+  props: SnapCarouselProps<T> & {
+    ref?: React.Ref<{
+      scrollToIndex: (index: number, animate?: boolean) => void;
+    }>;
+  }
+) => React.ReactElement;
