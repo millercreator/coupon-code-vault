@@ -15,6 +15,12 @@ const nextConfig = {
         port: "",
         pathname: "/9.x",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   turbopack: {
