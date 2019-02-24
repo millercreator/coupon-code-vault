@@ -21,16 +21,22 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.brandfetch.io",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   turbopack: {
     rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
       },
     },
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

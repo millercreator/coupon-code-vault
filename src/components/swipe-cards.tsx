@@ -8,27 +8,32 @@ import {
   AnimatePresence,
 } from "motion/react";
 
-export type CardType = {
-  id: number;
-  url: string;
-  [key: string]: any;
+export type CardType = Record<string, any>;
+
+type SwipeCardsProps<T extends CardType> = {
+  cards: T[];
+  renderCard: (card: T) => React.ReactNode;
+  onCardEnterFront?: (card: T) => void;
+  onCardLeaveFront?: (card: T) => void;
 };
 
-type SwipeCardsProps = {
-  cards: CardType[];
-  renderCard?: (card: CardType) => React.ReactNode;
-};
-
-type CardProps = {
-  card: CardType;
+type CardProps<T extends CardType> = {
+  card: T;
   index: number;
   totalCards: number;
   onSwipe: () => void;
-  renderCard?: (card: CardType) => React.ReactNode;
+  renderCard: (card: T) => React.ReactNode;
+  onCardEnterFront?: (card: T) => void;
+  onCardLeaveFront?: (card: T) => void;
 };
 
-const SwipeCards: React.FC<SwipeCardsProps> = ({ cards: initialCards, renderCard }) => {
-  const [cards, setCards] = useState<CardType[]>(initialCards);
+function SwipeCards<T extends CardType>({
+  cards: initialCards,
+  renderCard,
+  onCardEnterFront,
+  onCardLeaveFront,
+}: SwipeCardsProps<T>) {
+  const [cards, setCards] = useState<T[]>(initialCards);
 
   // Update cards when prop changes
   useEffect(() => {
@@ -50,24 +55,54 @@ const SwipeCards: React.FC<SwipeCardsProps> = ({ cards: initialCards, renderCard
           const positionFromTop = cards.length - 1 - index;
           return (
             <Card
-              key={card.id}
+              key={card.id ?? index}
               card={card}
               index={positionFromTop}
               totalCards={cards.length}
               onSwipe={handleSwipe}
               renderCard={renderCard}
+              onCardEnterFront={onCardEnterFront}
+              onCardLeaveFront={onCardLeaveFront}
             />
           );
         })}
       </AnimatePresence>
     </div>
   );
-};
+}
 
-const Card: React.FC<CardProps> = ({ card, index, totalCards, onSwipe, renderCard }) => {
+function Card<T extends CardType>({
+  card,
+  index,
+  totalCards,
+  onSwipe,
+  renderCard,
+  onCardEnterFront,
+  onCardLeaveFront,
+}: CardProps<T>) {
   const x = useMotionValue(0);
   const isTopCard = index === 0;
   const exitDirection = useRef<number>(1000); // Store exit direction
+  const prevIsTopCard = useRef<boolean>(isTopCard);
+
+  // Track when card enters or leaves the front of the stack
+  useEffect(() => {
+    const wasTopCard = prevIsTopCard.current;
+    const isNowTopCard = isTopCard;
+
+    // Card entered the front (wasn't top, now is top)
+    if (!wasTopCard && isNowTopCard && onCardEnterFront) {
+      onCardEnterFront(card);
+    }
+
+    // Card left the front (was top, now isn't top)
+    if (wasTopCard && !isNowTopCard && onCardLeaveFront) {
+      onCardLeaveFront(card);
+    }
+
+    // Update previous state
+    prevIsTopCard.current = isTopCard;
+  }, [isTopCard, card, onCardEnterFront, onCardLeaveFront]);
 
   // Reset x motion value when card position changes (fixes reverse swipe)
   useEffect(() => {
@@ -114,18 +149,7 @@ const Card: React.FC<CardProps> = ({ card, index, totalCards, onSwipe, renderCar
   // // Calculate rotation for cards in stack (more tilt for visibility, but top card stays straight)
   const stackRotation = isTopCard ? 0 : index % 2 === 0 ? 12 : -12;
 
-  // Default card renderer (original image)
-  const defaultCardContent = (
-    <img
-      src={card.url}
-      alt={`Card ${card.id}`}
-      draggable={false}
-      className="h-96 w-72 origin-center rounded-lg bg-white object-cover select-none"
-    />
-  );
-
-  // Use custom renderer if provided, otherwise use default
-  const cardContent = renderCard ? renderCard(card) : defaultCardContent;
+  const cardContent = renderCard(card);
 
   return (
     <motion.div
@@ -173,6 +197,8 @@ const Card: React.FC<CardProps> = ({ card, index, totalCards, onSwipe, renderCar
       {cardContent}
     </motion.div>
   );
-};
+}
 
-export default SwipeCards;
+export default SwipeCards as <T extends CardType>(
+  props: SwipeCardsProps<T>
+) => React.JSX.Element;
