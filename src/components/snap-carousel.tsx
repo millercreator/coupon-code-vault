@@ -8,6 +8,7 @@ import React, {
   useCallback,
   useImperativeHandle,
   forwardRef,
+  useEffect,
 } from "react";
 import { cn } from "@/lib/utils";
 
@@ -37,9 +38,9 @@ type SnapCarouselClassNames = {
 /**
  * Props for the SnapCarousel component.
  *
- * @template T - The type of the item in the carousel.
+ * @template T - The type of the item in the carousel. Must have an `id` property.
  */
-type SnapCarouselProps<T> = {
+type SnapCarouselProps<T extends { id: string | number }> = {
   /**
    * The array of items to display in the carousel.
    */
@@ -67,10 +68,10 @@ type SnapCarouselProps<T> = {
 
   /**
    * Callback fired when the locked (centered) item changes.
-   * @param index - Index of the new active/locked item.
-   * @param item  - The new active/locked item.
+   * @param id - The id of the new active/locked item.
+   * @param item - The new active/locked item.
    */
-  onChangeAction?: (index: number, item: T) => void;
+  onChangeAction?: (id: string | number, item: T) => void;
 
   /**
    * Additional CSS class for the carousel container.
@@ -99,13 +100,13 @@ type SnapCarouselProps<T> = {
    * Optional per-item override function to customize item props (class/style/aria).
    * Useful for special styling, aria attributes, etc., on a per-item basis.
    * @param item - The item.
-   * @param index - The index of the item.
+   * @param id - The id of the item.
    * @param isLocked - Whether this item is currently locked.
    * @returns Additional props to spread onto the item button.
    */
   getItemPropsAction?: (
     item: T,
-    index: number,
+    id: string | number,
     isLocked: boolean
   ) => {
     className?: string;
@@ -114,12 +115,24 @@ type SnapCarouselProps<T> = {
   };
 
   /**
+   * Controlled: The id of the currently active item.
+   * When provided, the carousel becomes a controlled component.
+   */
+  activeId?: string | number;
+
+  /**
+   * Uncontrolled: The id of the item to be active initially.
+   * Ignored if `activeId` is provided.
+   */
+  defaultActiveId?: string | number;
+
+  /**
    * Imperative scrolling method, provided for advanced use.
    * Usually not needed unless you want to control carousel scroll from outside.
-   * @param index - The index to scroll to.
+   * @param id - The id of the item to scroll to.
    * @param animate - Whether to animate the scroll. Defaults to true.
    */
-  scrollToIndex?: (index: number, animate?: boolean) => void;
+  scrollToId?: (id: string | number, animate?: boolean) => void;
 };
 
 const SIDE_PADDING = 24;
@@ -128,18 +141,44 @@ const SIDE_PADDING = 24;
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
-function useSnapCarousel<T>(
+function useSnapCarousel<T extends { id: string | number }>(
   items: T[],
   itemSize: number,
   gap: number,
-  onChangeAction?: (index: number, item: T) => void
+  onChangeAction?: (id: string | number, item: T) => void,
+  activeId?: string | number,
+  defaultActiveId?: string | number
 ) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
 
   const [offset, setOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [lockedIndex, setLockedIndex] = useState(0);
+
+  // Create a map from id to index for quick lookups
+  const idToIndexMap = useMemo(
+    () => new Map(items.map((item, index) => [item.id, index])),
+    [items]
+  );
+
+  // Find initial locked id
+  const getInitialLockedId = useCallback((): string | number => {
+    if (activeId !== undefined && idToIndexMap.has(activeId)) {
+      return activeId;
+    }
+    if (defaultActiveId !== undefined && idToIndexMap.has(defaultActiveId)) {
+      return defaultActiveId;
+    }
+    return items.length > 0 ? items[0].id : "";
+  }, [activeId, defaultActiveId, idToIndexMap, items]);
+
+  const [lockedId, setLockedId] = useState<string | number>(() =>
+    getInitialLockedId()
+  );
+
+  // Use controlled activeId if provided, otherwise use internal state
+  const currentLockedId = activeId !== undefined ? activeId : lockedId;
+  const lockedIndex = idToIndexMap.get(currentLockedId) ?? 0;
 
   const startXRef = useRef(0);
   const startOffsetRef = useRef(0);
@@ -164,14 +203,23 @@ function useSnapCarousel<T>(
     [getContainerCenter, positions, itemSize]
   );
 
-  // Center the given index
-  const centerIndex = useCallback(
-    (i: number, animate = true) => {
+  // Center the given id
+  const centerId = useCallback(
+    (id: string | number, animate = true) => {
       if (!containerRef.current) return;
-      const index = clamp(i, 0, items.length - 1);
-      setLockedIndex(index);
-      setOffset(Math.round(offsetForIndex(index)));
-      if (onChangeAction) onChangeAction(index, items[index]);
+      const index = idToIndexMap.get(id);
+      if (index === undefined) return;
+
+      const clampedIndex = clamp(index, 0, items.length - 1);
+      const finalId = items[clampedIndex].id;
+
+      // Only update internal state if not controlled
+      if (activeId === undefined) {
+        setLockedId(finalId);
+      }
+
+      setOffset(Math.round(offsetForIndex(clampedIndex)));
+      if (onChangeAction) onChangeAction(finalId, items[clampedIndex]);
 
       if (!trackRef.current) return;
       if (animate) {
@@ -186,11 +234,23 @@ function useSnapCarousel<T>(
         trackRef.current.removeAttribute("data-animate");
       }
     },
-    [items, offsetForIndex, onChangeAction]
+    [items, offsetForIndex, onChangeAction, idToIndexMap, activeId]
   );
 
+  // Sync with controlled activeId prop
+  useEffect(() => {
+    if (activeId !== undefined && idToIndexMap.has(activeId)) {
+      const index = idToIndexMap.get(activeId)!;
+      setOffset(Math.round(offsetForIndex(index)));
+      if (trackRef.current) {
+        trackRef.current.removeAttribute("data-animate");
+      }
+    }
+  }, [activeId, idToIndexMap, offsetForIndex]);
+
   useLayoutEffect(() => {
-    centerIndex(0, false);
+    const initialId = getInitialLockedId();
+    centerId(initialId, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemSize, gap, items.length]);
 
@@ -231,22 +291,31 @@ function useSnapCarousel<T>(
         closestIdx = idx;
       }
     });
-    centerIndex(closestIdx, true);
-  }, [dragging, getContainerCenter, itemSize, offset, positions, centerIndex]);
+    const closestId = items[closestIdx].id;
+    centerId(closestId, true);
+  }, [
+    dragging,
+    getContainerCenter,
+    itemSize,
+    offset,
+    positions,
+    centerId,
+    items,
+  ]);
 
   const handleItemClick = useCallback(
-    (i: number) => {
-      centerIndex(i, true);
+    (id: string | number) => {
+      centerId(id, true);
     },
-    [centerIndex]
+    [centerId]
   );
 
-  // Provide an imperative scrollToIndex
-  const scrollToIndex = useCallback(
-    (i: number, animate: boolean = true) => {
-      centerIndex(i, animate);
+  // Provide an imperative scrollToId
+  const scrollToId = useCallback(
+    (id: string | number, animate: boolean = true) => {
+      centerId(id, animate);
     },
-    [centerIndex]
+    [centerId]
   );
 
   return {
@@ -254,12 +323,13 @@ function useSnapCarousel<T>(
     trackRef,
     offset,
     dragging,
+    lockedId: currentLockedId,
     lockedIndex,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
     handleItemClick,
-    scrollToIndex,
+    scrollToId,
   };
 }
 
@@ -290,7 +360,7 @@ function LockCase({
   );
 }
 
-function CarouselTrack<T>({
+function CarouselTrack<T extends { id: string | number }>({
   items,
   renderItemAction,
   itemSize,
@@ -298,7 +368,7 @@ function CarouselTrack<T>({
   sidePadding,
   offset,
   dragging,
-  lockedIndex,
+  lockedId,
   trackRef,
   handlePointerDown,
   handlePointerMove,
@@ -315,17 +385,17 @@ function CarouselTrack<T>({
   sidePadding: number;
   offset: number;
   dragging: boolean;
-  lockedIndex: number;
+  lockedId: string | number;
   trackRef: React.RefObject<HTMLDivElement | null>;
   handlePointerDown: (e: React.PointerEvent) => void;
   handlePointerMove: (e: React.PointerEvent) => void;
   handlePointerUp: () => void;
-  handleItemClick: (i: number) => void;
+  handleItemClick: (id: string | number) => void;
   lockedScale: number;
   classNames?: SnapCarouselClassNames;
   getItemPropsAction?: (
     item: T,
-    index: number,
+    id: string | number,
     isLocked: boolean
   ) => {
     className?: string;
@@ -357,14 +427,14 @@ function CarouselTrack<T>({
         userSelect: "none",
       }}
     >
-      {items.map((item, i) => {
-        const isLocked = i === lockedIndex;
-        const itemProps = getItemPropsAction?.(item, i, isLocked) ?? {};
+      {items.map((item) => {
+        const isLocked = item.id === lockedId;
+        const itemProps = getItemPropsAction?.(item, item.id, isLocked) ?? {};
         return (
           <button
-            key={i}
+            key={item.id}
             type="button"
-            onClick={() => handleItemClick(i)}
+            onClick={() => handleItemClick(item.id)}
             className={cn(
               "rounded-[12px] border-2 border-transparent grid place-items-center focus:outline-none transition duration-200 flex-shrink-0 cursor-pointer",
               classNames.item,
@@ -395,8 +465,10 @@ function CarouselTrack<T>({
   );
 }
 
-// Forward ref so caller can call scrollToIndex
-export const SnapCarousel = forwardRef(function SnapCarousel_<T>(
+// Forward ref so caller can call scrollToId
+export const SnapCarousel = forwardRef(function SnapCarousel_<
+  T extends { id: string | number }
+>(
   {
     items,
     renderItemAction,
@@ -408,9 +480,11 @@ export const SnapCarousel = forwardRef(function SnapCarousel_<T>(
     lockStyle,
     classNames = {},
     getItemPropsAction,
+    activeId,
+    defaultActiveId,
   }: SnapCarouselProps<T>,
   ref: React.Ref<
-    { scrollToIndex: (index: number, animate?: boolean) => void } | undefined
+    { scrollToId: (id: string | number, animate?: boolean) => void } | undefined
   >
 ) {
   const {
@@ -418,23 +492,31 @@ export const SnapCarousel = forwardRef(function SnapCarousel_<T>(
     trackRef,
     offset,
     dragging,
+    lockedId,
     lockedIndex,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
     handleItemClick,
-    scrollToIndex,
-  } = useSnapCarousel(items, itemSize, gap, onChangeAction);
+    scrollToId,
+  } = useSnapCarousel(
+    items,
+    itemSize,
+    gap,
+    onChangeAction,
+    activeId,
+    defaultActiveId
+  );
 
   const lockedScale = Math.max(0, (itemSize - 2 * lockSpacing) / itemSize);
 
-  // Expose scrollToIndex via ref
+  // Expose scrollToId via ref
   useImperativeHandle(
     ref,
     () => ({
-      scrollToIndex,
+      scrollToId,
     }),
-    [scrollToIndex]
+    [scrollToId]
   );
 
   return (
@@ -469,7 +551,7 @@ export const SnapCarousel = forwardRef(function SnapCarousel_<T>(
         sidePadding={SIDE_PADDING}
         offset={offset}
         dragging={dragging}
-        lockedIndex={lockedIndex}
+        lockedId={lockedId}
         trackRef={trackRef}
         handlePointerDown={handlePointerDown}
         handlePointerMove={handlePointerMove}
@@ -481,10 +563,10 @@ export const SnapCarousel = forwardRef(function SnapCarousel_<T>(
       />
     </div>
   );
-}) as <T>(
+}) as <T extends { id: string | number }>(
   props: SnapCarouselProps<T> & {
     ref?: React.Ref<{
-      scrollToIndex: (index: number, animate?: boolean) => void;
+      scrollToId: (id: string | number, animate?: boolean) => void;
     }>;
   }
 ) => React.ReactElement;

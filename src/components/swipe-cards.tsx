@@ -52,7 +52,7 @@ function SwipeCards<T extends CardType>({
     <div className="grid h-[500px] w-full place-items-center">
       <AnimatePresence mode="popLayout">
         {cards.map((card, index) => {
-          const positionFromTop = cards.length - 1 - index;
+          const positionFromTop = index; // First card (index 0) should be on top
           return (
             <Card
               key={card.id ?? index}
@@ -82,11 +82,26 @@ function Card<T extends CardType>({
 }: CardProps<T>) {
   const x = useMotionValue(0);
   const isTopCard = index === 0;
-  const exitDirection = useRef<number>(1000); // Store exit direction
+  const exitDirection = useRef<number>(1000);
   const prevIsTopCard = useRef<boolean>(isTopCard);
+  const prevCardId = useRef<string | number | undefined>(card.id);
+
+  // Reset prevIsTopCard when card changes (handles reorganization)
+  useEffect(() => {
+    if (prevCardId.current !== card.id) {
+      prevCardId.current = card.id;
+      prevIsTopCard.current = isTopCard;
+      return; // Don't trigger callbacks on card change, only on position change
+    }
+  }, [card.id, isTopCard]);
 
   // Track when card enters or leaves the front of the stack
   useEffect(() => {
+    // Skip if card just changed (handled above)
+    if (prevCardId.current !== card.id) {
+      return;
+    }
+
     const wasTopCard = prevIsTopCard.current;
     const isNowTopCard = isTopCard;
 
