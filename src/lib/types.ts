@@ -28,4 +28,21 @@ export interface Store {
   name: string;                // Store name
   logoUrl?: string;            // Logo image URL, optional
   websiteUrl?: string;         // Store website URL, optional
+
+  /**
+   * Store color palette for light and dark mode.
+   * Both background and foreground colors in a single object.
+   * Example:
+   *   colorPalette: {
+   *     background: ["#ffffff", "#000000"],      // background color [light, dark]
+   *     foreground: ["#111111", "#eeeeee"],      // text/icon color [light, dark]
+   *   }
+   * Usage example:
+   *   { backgroundColor: store.colorPalette?.background[isDarkMode ? 1 : 0],
+   *     color: store.colorPalette?.foreground[isDarkMode ? 1 : 0] }
+   */
+  colorPalette?: {
+    background: [string, string];      // background color [light, dark]
+    foreground: [string, string];      // foreground color [light, dark]
+  };
 }

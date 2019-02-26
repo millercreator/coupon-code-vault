@@ -184,8 +184,8 @@ function Card<T extends CardType>({
         y: 0,
         opacity: 1,
         boxShadow: isTopCard
-          ? "0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5)"
-          : "0 10px 15px -5px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3)",
+          ? "0 12px 16px -5px rgb(0 0 0 / 0.28), 0 5px 7px -6px rgb(0 0 0 / 0.18)"
+          : "0 5px 7px -5px rgb(0 0 0 / 0.16), 0 2px 4px -4px rgb(0 0 0 / 0.11)",
       }}
       transition={{
         type: "spring",

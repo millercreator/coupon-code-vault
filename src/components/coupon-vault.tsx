@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+
 import type { Coupon, Store } from "@/lib/types";
 import { SnapCarousel } from "@/components/snap-carousel";
 import SwipeCards from "./swipe-cards";
+import CouponCard from "./coupon-card";
 
 const stores: Store[] = [
   {
@@ -12,42 +14,70 @@ const stores: Store[] = [
     name: "Target",
     logoUrl:
       "https://cdn.brandfetch.io/id0ZfAM4Dt/w/240/h/240/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1667573192808",
+    colorPalette: {
+      background: ["#CC0000", "#990000"], // Light, Dark
+      foreground: ["#FFFFFF", "#F2F2F2"], // Accessible whites
+    },
   },
   {
     id: "walmart",
     name: "Walmart",
     logoUrl:
       "https://cdn.brandfetch.io/idoGsFQrHx/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1736912992509",
+    colorPalette: {
+      background: ["#F7B400", "#0071CE"], // Light (yellow), Dark (blue)
+      foreground: ["#2E2E2E", "#FFFFFF"], // Accessible black/white
+    },
   },
   {
     id: "best_buy",
     name: "Best Buy",
     logoUrl:
       "https://cdn.brandfetch.io/idmSVs_Vxg/w/480/h/480/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1761207107240",
+    colorPalette: {
+      background: ["#FFE000", "#003087"], // Light (yellow), Dark (deep blue)
+      foreground: ["#001A34", "#FFFFFF"], // Dark blue text for yellow, white for dark
+    },
   },
   {
     id: "starbucks",
     name: "Starbucks",
     logoUrl:
       "https://cdn.brandfetch.io/idwBSkfVb3/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1727716459197",
+    colorPalette: {
+      background: ["#00704A", "#1E3932"], // Starbucks green, deeper dark green
+      foreground: ["#FFFFFF", "#F4F4F2"], // Accessible white
+    },
   },
   {
     id: "ulta_beauty",
     name: "Ulta Beauty",
     logoUrl:
       "https://cdn.brandfetch.io/idBv2IbOz2/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1667580295387",
+    colorPalette: {
+      background: ["#FF6F00", "#A34F1F"], // Vibrant orange, deep brown/orange
+      foreground: ["#FFFFFF", "#FFF8F0"], // Accessible for branding
+    },
   },
   {
     id: "nike",
     name: "Nike",
     logoUrl:
       "https://cdn.brandfetch.io/id_0dwKPKT/w/399/h/399/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1741746473623",
+    colorPalette: {
+      background: ["#FFFFFF", "#111111"], // Nike is white or almost black
+      foreground: ["#111111", "#FFFFFF"], // Black on white, white on black
+    },
   },
   {
     id: "gap",
     name: "GAP",
     logoUrl:
       "https://cdn.brandfetch.io/idgoQYa6uK/w/400/h/400/theme/dark/icon.png?c=1bxid64Mup7aczewSAYMX&t=1674701440935",
+    colorPalette: {
+      background: ["#002244", "#141823"], // GAP navy blue, darker blue (dark mode)
+      foreground: ["#FFFFFF", "#F6F6F6"], // White or near-white
+    },
   },
 ];
 
@@ -287,6 +317,8 @@ export default function CouponVault() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [frontCoupon, setFrontCoupon] = useState<Coupon | null>(null);
 
+  const [mounted, setMounted] = useState(false);
+
   /**
    * Get the unique order of storeIds as they appear in the coupons array.
    */
@@ -342,6 +374,7 @@ export default function CouponVault() {
   }
 
   useEffect(() => {
+    setMounted(true);
     let loadedCoupons: Coupon[] = [];
 
     try {
@@ -361,7 +394,10 @@ export default function CouponVault() {
     setFrontCoupon(loadedCoupons[0] || null);
   }, []);
 
-  console.log(frontCoupon)
+  // Don't render until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen mx-auto max-w-2xl">
@@ -371,12 +407,11 @@ export default function CouponVault() {
           onCardEnterFront={(coupon) => {
             setFrontCoupon(coupon);
           }}
-          renderCard={(coupon) => (
-            <div className="h-96 w-72 bg-muted rounded-lg p-4 relative">
-              <h3>{coupon.storeId}</h3>
-              {/* TODO LATER: create coupon component here */}
-            </div>
-          )}
+          renderCard={(coupon) => {
+            const store = stores.find((s) => s.id === coupon.storeId);
+
+            return <CouponCard coupon={coupon} store={store || null} />;
+          }}
         />
       </div>
       <div className="relative max-w-[720px] mx-auto my-10 space-y-2">
