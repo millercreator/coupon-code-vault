@@ -31,7 +31,7 @@ export function CouponListCard({ coupon }: CouponListCardProps) {
             <span className="transition-colors duration-150">OFF</span>
           </div>
           {spendDisplay ? (
-            <div className="text-orange-400 text-sm flex items-center gap-1 transition-colors duration-150">
+            <div className="text-orange-400 text-sm font-semibold flex items-center gap-1 transition-colors duration-150">
               <ArrowUpSolid className="size-4 transition-colors duration-150" />
               <span className="transition-colors duration-150">
                 {spendDisplay}
@@ -55,15 +55,10 @@ export function CouponListCard({ coupon }: CouponListCardProps) {
           <p className="text-sm md:max-w-sm leading-5 line-clamp-2 transition-colors duration-150">
             {coupon.discountDescription}
           </p>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {}}
-            className="h-7 w-7 p-1 hidden md:flex"
-            aria-label="Menu"
-          >
-            <Expand className="transition-colors duration-150" />
-          </Button>
+
+          <div className="hidden md:block">
+            <Expand className="group-hover:text-background transition-colors duration-150" />
+          </div>
         </div>
         <div className="flex w-full justify-between md:items-center">
           <div className="flex gap-2 items-center text-sm">

@@ -1,0 +1,361 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
+
+import type { Coupon } from "@/lib/types";
+import { SnapCarousel } from "@/components/snap-carousel";
+import { CouponListCard } from "./coupon-list-card";
+import { stores, DEFAULT_COUPONS } from "@/data/placeholders";
+
+export default function CouponVault() {
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [frontCoupon, setFrontCoupon] = useState<Coupon | null>(null);
+  const [activeStoreId, setActiveStoreId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  const storeLabelRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const lastCouponRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const lastCouponObserverRef = useRef<IntersectionObserver | null>(null);
+  const isScrollingFromCarousel = useRef(false);
+
+  /**
+   * Get the unique order of storeIds as they appear in the coupons array.
+   */
+  function getUniqueStoreOrder(coupons: Coupon[]): string[] {
+    const storeOrder: string[] = [];
+    coupons.forEach((c) => {
+      if (!storeOrder.includes(c.storeId)) {
+        storeOrder.push(c.storeId);
+      }
+    });
+    return storeOrder;
+  }
+
+  /**
+   * Get a cyclically reordered array of storeIds placing the active storeId's group first.
+   */
+  function getReorderedStoreOrder(
+    storeOrder: string[],
+    activeStoreId: string
+  ): string[] {
+    const idx = storeOrder.indexOf(activeStoreId);
+    if (idx === -1) return storeOrder; // fallback if storeId doesn't exist
+    return [...storeOrder.slice(idx), ...storeOrder.slice(0, idx)];
+  }
+
+  // Group coupons by provided storeId array order
+  function groupCouponsByStoreOrder(
+    coupons: Coupon[],
+    storeOrder: string[]
+  ): Coupon[] {
+    const groupedCoupons: Coupon[] = [];
+    storeOrder.forEach((sId) => {
+      groupedCoupons.push(...coupons.filter((c) => c.storeId === sId));
+    });
+    return groupedCoupons;
+  }
+
+  // Helper to regroup coupons so selected store comes first
+  function reorganizeCouponsByStore(storeId: string) {
+    const storeOrder = getUniqueStoreOrder(coupons);
+    const reorderedStoreOrder = getReorderedStoreOrder(storeOrder, storeId);
+    return groupCouponsByStoreOrder(coupons, reorderedStoreOrder);
+  }
+
+  // Get currently active store (for title)
+  function getActiveStore() {
+    const storeId = activeStoreId || frontCoupon?.storeId;
+    if (!storeId) return null;
+    return stores.find((store) => store.id === storeId) || null;
+  }
+
+  // Setup intersection observer to track store labels at sticky position
+  const setupIntersectionObserver = useCallback(() => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+    if (lastCouponObserverRef.current) {
+      lastCouponObserverRef.current.disconnect();
+    }
+
+    // Observer for store labels - tracks which label is at the sticky position
+    const labelObserver = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingFromCarousel.current) return;
+        
+        // Find the label that's currently at the sticky position
+        // A label is "stuck" when its top is at or near 120px from viewport top
+        let stuckLabelElement: HTMLElement | null = null;
+        let closestToStickyPosition = Infinity;
+
+        entries.forEach((entry) => {
+          const target = entry.target;
+          if (target instanceof HTMLElement) {
+            const rect = entry.boundingClientRect;
+            // Check if this label is stuck (within sticky range: 115-125px from top)
+            if (rect.top >= 115 && rect.top <= 125) {
+              const distanceFromIdeal = Math.abs(rect.top - 120);
+              if (distanceFromIdeal < closestToStickyPosition) {
+                closestToStickyPosition = distanceFromIdeal;
+                stuckLabelElement = target;
+              }
+            }
+          }
+        });
+
+        if (stuckLabelElement) {
+          const storeId = (stuckLabelElement as HTMLElement).getAttribute("data-store-id");
+          if (storeId && storeId !== activeStoreId) {
+            setActiveStoreId(storeId);
+          }
+        }
+      },
+      {
+        root: null,
+        rootMargin: "0px",
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+      }
+    );
+
+    // Observer for last coupons - tracks when last coupon of a store group passes bottom edge
+    const lastCouponObserver = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingFromCarousel.current) return;
+
+        entries.forEach((entry) => {
+          if (entry.target instanceof HTMLElement) {
+            const storeId = entry.target.getAttribute("data-last-coupon-store-id");
+            if (!storeId) return;
+
+            const rect = entry.boundingClientRect;
+            // If the last coupon has completely passed the bottom edge of viewport
+            // (top of element is above viewport bottom, and not intersecting)
+            if (!entry.isIntersecting && rect.top < window.innerHeight && rect.bottom < window.innerHeight) {
+              // Find the next store's label to activate
+              const storeOrder = getUniqueStoreOrder(coupons);
+              const currentIndex = storeOrder.indexOf(storeId);
+              if (currentIndex !== -1 && currentIndex < storeOrder.length - 1) {
+                const nextStoreId = storeOrder[currentIndex + 1];
+                if (nextStoreId !== activeStoreId) {
+                  setActiveStoreId(nextStoreId);
+                }
+              }
+            }
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: "0px",
+        threshold: [0, 1.0],
+      }
+    );
+
+    observerRef.current = labelObserver;
+    lastCouponObserverRef.current = lastCouponObserver;
+
+    // Observe all store labels
+    storeLabelRefs.current.forEach((element) => {
+      labelObserver.observe(element);
+    });
+
+    // Observe all last coupons
+    lastCouponRefs.current.forEach((element) => {
+      lastCouponObserver.observe(element);
+    });
+  }, [activeStoreId, coupons]);
+
+  // Set ref on store label dom node
+  const setStoreLabelRef = useCallback(
+    (storeId: string, element: HTMLDivElement | null) => {
+      if (element) {
+        storeLabelRefs.current.set(storeId, element);
+      } else {
+        storeLabelRefs.current.delete(storeId);
+      }
+    },
+    []
+  );
+
+  // Set ref on last coupon of a store group
+  const setLastCouponRef = useCallback(
+    (storeId: string, element: HTMLDivElement | null) => {
+      if (element) {
+        lastCouponRefs.current.set(storeId, element);
+      } else {
+        lastCouponRefs.current.delete(storeId);
+      }
+    },
+    []
+  );
+
+  // On mount: load coupons from localStorage or defaults and sort by store order
+  useEffect(() => {
+    setMounted(true);
+    let loadedCoupons: Coupon[] = [];
+    try {
+      const couponsSaved = localStorage.getItem("coupons");
+      loadedCoupons = couponsSaved ? JSON.parse(couponsSaved) : [];
+      if (!Array.isArray(loadedCoupons)) loadedCoupons = [];
+    } catch (e) {
+      console.error("Failed to load coupons:", e);
+      loadedCoupons = [];
+    }
+    if (loadedCoupons.length === 0) {
+      loadedCoupons = DEFAULT_COUPONS;
+    }
+    const storeOrder = getUniqueStoreOrder(loadedCoupons);
+    const sortedCoupons = groupCouponsByStoreOrder(loadedCoupons, storeOrder);
+    setCoupons(sortedCoupons);
+    const firstCoupon = sortedCoupons[0] || null;
+    setFrontCoupon(firstCoupon);
+    setActiveStoreId(firstCoupon?.storeId || null);
+  }, []);
+
+  // Setup and cleanup intersection observer when coupons change
+  useEffect(() => {
+    if (mounted && coupons.length > 0) {
+      const timeoutId = setTimeout(() => {
+        setupIntersectionObserver();
+      }, 100);
+      return () => {
+        clearTimeout(timeoutId);
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
+      };
+    }
+  }, [mounted, coupons, setupIntersectionObserver]);
+
+  // Cleanup observers on unmount
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+      if (lastCouponObserverRef.current) {
+        lastCouponObserverRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  // Wait for hydration to avoid mismatch
+  if (!mounted) return null;
+
+  return (
+    <div className="min-h-screen mx-auto max-w-2xl">
+      <div className="z-50 sticky top-0 bg-background max-w-[720px] mx-auto py-4 space-y-2">
+        <SnapCarousel
+          items={stores}
+          activeId={activeStoreId || frontCoupon?.storeId || stores[0].id}
+          itemSize={64}
+          gap={12}
+          lockSpacing={6}
+          classNames={{
+            track: "gap-0",
+            item: "bg-muted overflow-hidden border-none",
+            activeItem: "",
+            root: "",
+            lock: "border-foreground border-[2.5px] rounded-[14px]",
+          }}
+          renderItemAction={(store, locked) => {
+            const opacity = !locked ? 0.3 : 1;
+            return (
+              <Image
+                src={store.logoUrl!}
+                alt={store.name}
+                width={64}
+                height={64}
+                className="object-contain select-none pointer-events-none"
+                style={{ opacity, userSelect: "none" }}
+                unoptimized
+                draggable={false}
+              />
+            );
+          }}
+          onChangeAction={(_, store) => {
+            if (store.id !== activeStoreId) {
+              isScrollingFromCarousel.current = true;
+              setActiveStoreId(store.id);
+              const sortedCoupons = reorganizeCouponsByStore(store.id);
+              setCoupons(sortedCoupons);
+              const storeCoupons = sortedCoupons.filter(
+                (c) => c.storeId === store.id
+              );
+              if (storeCoupons.length > 0) {
+                setFrontCoupon(storeCoupons[0]);
+                const storeLabelElement = storeLabelRefs.current.get(store.id);
+                if (storeLabelElement) {
+                  // Scroll to position the label at the sticky position (120px from top)
+                  const scrollY = window.scrollY + storeLabelElement.getBoundingClientRect().top - 120;
+                  window.scrollTo({
+                    top: scrollY,
+                    behavior: "smooth",
+                  });
+                }
+              }
+              setTimeout(() => {
+                isScrollingFromCarousel.current = false;
+              }, 800);
+            }
+          }}
+        />
+        <h3 className="text-sm text-center ">
+          {getActiveStore() ? getActiveStore()!.name : "Store"}
+        </h3>
+      </div>
+      <div className="max-w-lg mx-auto pb-[100vh]">
+        {coupons.length > 0 ? (
+          coupons.map((coupon, index) => {
+            const previousCoupon = index > 0 ? coupons[index - 1] : null;
+            const nextCoupon = index < coupons.length - 1 ? coupons[index + 1] : null;
+            const showStoreLabel =
+              !previousCoupon || previousCoupon.storeId !== coupon.storeId;
+            const isLastCouponOfStore = !nextCoupon || nextCoupon.storeId !== coupon.storeId;
+            const store = stores.find((s) => s.id === coupon.storeId);
+
+            return (
+              <div key={coupon.id}>
+                {showStoreLabel && store && (
+                  <div
+                    ref={(el) => setStoreLabelRef(store.id, el)}
+                    data-store-id={store.id}
+                    className="sticky top-[120px] z-10 bg-background/95 backdrop-blur-sm py-4 px-6 border-b border-border/40"
+                  >
+                    <div className="flex items-center gap-3">
+                      {store.logoUrl && (
+                        <Image
+                          src={store.logoUrl}
+                          alt={store.name}
+                          width={24}
+                          height={24}
+                          className="object-contain rounded-full"
+                          unoptimized
+                        />
+                      )}
+                      <h2 className="text-base font-semibold text-foreground">
+                        {store.name}
+                      </h2>
+                    </div>
+                  </div>
+                )}
+                <div
+                  ref={isLastCouponOfStore && store ? (el) => setLastCouponRef(store.id, el) : undefined}
+                  data-last-coupon-store-id={isLastCouponOfStore && store ? store.id : undefined}
+                >
+                  <CouponListCard coupon={coupon} />
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="p-6 text-center text-sm text-muted-foreground">
+            No coupons saved yet. Swipe to add some deals.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
