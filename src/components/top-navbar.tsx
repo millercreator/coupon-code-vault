@@ -18,9 +18,9 @@ export default function TopNavbar({ onAddAction, onSearchAction, onMenuAction }:
           <BrandLogo className="h-full w-auto text-primary" />
         </div>
         <div className="flex items-center gap-1">
-          <Button size="icon" onClick={onAddAction} className="h-7 w-7 p-1" aria-label="Add new">
+          {/* <Button size="icon" onClick={onAddAction} className="h-7 w-7 p-1" aria-label="Add new">
             <Plus className="text-primary-foreground" />
-          </Button>
+          </Button> */}
           <Button variant="ghost" size="icon" onClick={onSearchAction} className="h-7 w-7 p-1" aria-label="Search">
             <Search />
           </Button>

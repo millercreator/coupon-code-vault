@@ -10,12 +10,7 @@ import { useCoupons } from "@/hooks/use-coupons";
 import { groupCouponsByStore } from "@/lib/coupon-utils";
 
 export default function CouponVault() {
-  const {
-    coupons,
-    activeStoreId,
-    setActiveStoreId,
-    mounted,
-  } = useCoupons();
+  const { coupons, activeStoreId, setActiveStoreId, mounted } = useCoupons();
 
   // Get currently active store (for title)
   function getActiveStore() {
