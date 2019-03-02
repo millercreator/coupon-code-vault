@@ -3,18 +3,50 @@ import type { Coupon } from "@/lib/types";
 import ArrowUpSolid from "@/assets/arrowup.svg";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+import { stores } from "@/data/placeholders";
+import { formatDate } from "@/lib/utils";
+import {
+  formatDiscountValue,
+  getSpendThresholdLabel,
+} from "@/lib/coupon-utils";
 
 type CouponListCardProps = {
   coupon: Coupon;
 };
 
 export function CouponListCard({ coupon }: CouponListCardProps) {
-  const discountLabel = getDiscountLabel(coupon);
-  const spendDisplay = getSuggestedSpendLabel(coupon);
-  const expiration = formatExpirationDate(coupon.expiration?.endDate);
+  const router = useRouter();
+  const { resolvedTheme } = useTheme();
+
+  const discountLabel = formatDiscountValue(coupon);
+  const spendDisplay = getSpendThresholdLabel(coupon);
+  const expiration = formatDate(coupon.expiration?.endDate);
+
+  const store = stores.find((s) => s.id === coupon.storeId);
+  const isDarkMode = resolvedTheme === "dark";
+  const backgroundColor = store?.colorPalette?.background[isDarkMode ? 1 : 0];
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Capture click position relative to viewport
+    const x = e.clientX;
+    const y = e.clientY;
+
+    const params = new URLSearchParams();
+    params.set("x", String(x));
+    params.set("y", String(y));
+    if (backgroundColor) {
+      params.set("backgroundColor", encodeURIComponent(backgroundColor));
+    }
+
+    // Navigate to detail page with search params
+    router.push(`/coupon/${coupon.id}?${params.toString()}`);
+  };
 
   return (
     <div
+      onClick={handleClick}
       className="relative group px-6 py-4 w-full flex flex-col gap-y-4 overflow-hidden md:flex-row md:items-start md:gap-8 transition-colors duration-150 
       hover:bg-foreground hover:text-background cursor-pointer"
     >
@@ -67,7 +99,7 @@ export function CouponListCard({ coupon }: CouponListCardProps) {
           </div>
           <Badge
             variant="secondary"
-            className="rounded-full text-sm py-1.5 px-3.5 cursor-pointer select-all transition-colors duration-150"
+            className="rounded-full py-2 px-3.5 cursor-pointer select-all transition-colors duration-150 tracking-widest"
             aria-label="Coupon code"
           >
             {coupon.code}
@@ -76,58 +108,4 @@ export function CouponListCard({ coupon }: CouponListCardProps) {
       </div>
     </div>
   );
-}
-
-function getDiscountLabel(coupon: Coupon) {
-  if (coupon.discount.type === "percent") {
-    const value = Number(coupon.discount.value);
-    return Number.isFinite(value) ? `${value}%` : `${coupon.discount.value}`;
-  }
-
-  if (coupon.discount.type === "amount") {
-    const value = Number(coupon.discount.value);
-    const currency = coupon.discount.currency ?? "USD";
-    if (Number.isFinite(value)) {
-      return formatCurrency(value, currency);
-    }
-  }
-
-  return `${coupon.discount.value}`;
-}
-
-function getSuggestedSpendLabel(coupon: Coupon) {
-  const spendAmount =
-    coupon.suggestedSpend?.amount ?? coupon.minimumRequirement?.amount;
-  if (!Number.isFinite(spendAmount ?? NaN)) {
-    return null;
-  }
-
-  const currency =
-    coupon.suggestedSpend?.currency ??
-    coupon.minimumRequirement?.currency ??
-    "USD";
-  return formatCurrency(spendAmount as number, currency);
-}
-
-function formatExpirationDate(endDate?: string) {
-  if (!endDate) return "Valid until (date TBA)";
-  const date = new Date(endDate);
-  if (Number.isNaN(date.getTime())) {
-    return `Valid until (${endDate})`;
-  }
-  const formatted = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
-  return `Valid until (${formatted})`;
-}
-
-function formatCurrency(value: number, currency: string) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0,
-  }).format(value);
 }

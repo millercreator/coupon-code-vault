@@ -92,6 +92,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
       description: "Minimum spend $30",
     },
     expiration: { endDate: "2025-01-31" },
+    termsAndConditions: [
+      "Valid for online purchases only at Target.com.",
+      "Cannot be combined with other promo codes or storewide discounts.",
+      "Not applicable to gift cards, electronics, or pharmacy purchases.",
+      "Each customer can use the code once per account.",
+      "Offer excludes clearance, bulk, and sale items.",
+      "Target reserves the right to change or cancel this offer at any time.",
+      "Coupon must be applied before completing the checkout process."
+    ]
   },
   {
     id: "TGT15",
@@ -109,6 +118,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     },
     eligibleItemsDescription: "Home decor & furniture",
     expiration: { endDate: "2024-10-31" },
+    termsAndConditions: [
+      "Eligible for selected home decor and furniture items only.",
+      "Not valid in Target stores or on in-store pickup orders.",
+      "Coupon will not apply to taxes, shipping, or delivery fees.",
+      "Limit one use per customer per promotion period.",
+      "May not be redeemed for cash or used on previous purchases.",
+      "Returns made using this coupon may forfeit savings.",
+      "Void where prohibited or restricted by law."
+    ]
   },
   {
     id: "TGT20",
@@ -121,6 +139,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "online",
     eligibleItemsDescription: "Only for newly listed items",
     expiration: { endDate: "2024-08-31" },
+    termsAndConditions: [
+      "Offer valid only for newly listed items in the New Arrivals category.",
+      "Not combinable with employee or affiliate discounts.",
+      "Maximum discount value: $50 per transaction.",
+      "Coupon code must be entered at checkout to receive discount.",
+      "Items purchased with coupon are subject to standard return policies.",
+      "Not valid on backordered or pre-order items.",
+      "Unused portion of the coupon is non-refundable."
+    ]
   },
 
   // Walmart (3 coupons)
@@ -135,6 +162,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "both",
     eligibleItemsDescription: "Groceries only",
     expiration: { endDate: "2024-09-30" },
+    termsAndConditions: [
+      "Valid for grocery items only, both online and in participating Walmart stores.",
+      "Excludes alcohol, tobacco, and gift cards.",
+      "Only one coupon can be applied per order.",
+      "Cannot be transferred, sold, or exchanged for cash.",
+      "Not valid on third-party marketplace items.",
+      "Coupon not valid after expiration date.",
+      "Subject to availability of eligible products."
+    ]
   },
   {
     id: "WMT10TOYS",
@@ -147,6 +183,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "inStore",
     eligibleItemsDescription: "Toys department only",
     expiration: { endDate: "2024-12-31" },
+    termsAndConditions: [
+      "Valid in-store at participating Walmart locations only.",
+      "Discount applied to toys department SKUs only.",
+      "This coupon must be presented at time of purchase.",
+      "No rain checks or substitutions allowed.",
+      "Not valid with any other Walmart promotional offers.",
+      "Coupon not redeemable for cash or gift cards.",
+      "Offer applies to stock on hand; no special orders."
+    ]
   },
   {
     id: "WMT5",
@@ -158,6 +203,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     suggestedSpend: { amount: 60, currency: "USD" },
     redemptionMethod: "online",
     expiration: { endDate: "2024-12-15" },
+    termsAndConditions: [
+      "Online only at Walmart.com; not valid in physical stores.",
+      "Offer available to first-time online customers only.",
+      "Coupon excludes select electronics and gift cards.",
+      "Each account eligible for single use only.",
+      "No cash value; coupon cannot be resold.",
+      "Shipping and handling fees are not discounted.",
+      "Misuse of coupon may result in order cancellation."
+    ]
   },
 
   // Best Buy (3 coupons)
@@ -172,6 +226,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "online",
     eligibleItemsDescription: "Headphones only",
     expiration: { endDate: "2024-10-10" },
+    termsAndConditions: [
+      "Discount valid only on headphone products sold by Best Buy.",
+      "Not applicable to open-box, refurbished, or clearance items.",
+      "Cannot be used with student or military discounts.",
+      "Coupon code required at checkout.",
+      "Discount does not apply to taxes or shipping fees.",
+      "Purchase must be completed before the expiration date.",
+      "Best Buy reserves the right to verify eligibility."
+    ]
   },
   {
     id: "BBY15",
@@ -184,6 +247,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "both",
     eligibleItemsDescription: "Mice, keyboards, monitors",
     expiration: { endDate: "2024-12-31" },
+    termsAndConditions: [
+      "Valid for selected computer accessories: mice, keyboards, monitors.",
+      "Offer not valid on bundles, parts, or gaming consoles.",
+      "Limit of 2 redemptions per household.",
+      "Coupon cannot be combined with Price Match Guarantee.",
+      "Online and in-store redemption, where available.",
+      "Returns must include the original receipt and all packaging.",
+      "Coupon not valid on previous purchases."
+    ]
   },
   {
     id: "BBY10",
@@ -200,6 +272,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
       description: "Min spend $100",
     },
     expiration: { endDate: "2025-01-10" },
+    termsAndConditions: [
+      "Minimum purchase of $100 before tax required.",
+      "Valid on single transaction only; no partial redemptions.",
+      "Coupon valid for merchandise purchases only.",
+      "Limit one coupon per customer, per order.",
+      "Digital products, services, and warranties not eligible.",
+      "Cannot be used with other percent-off offers.",
+      "All standard Best Buy return policies apply."
+    ]
   },
 
   // Starbucks (3 coupons)
@@ -214,6 +295,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "inStore",
     eligibleItemsDescription: "All espresso drinks",
     expiration: { endDate: "2024-07-31" },
+    termsAndConditions: [
+      "Valid for espresso drinks only; excludes bottled beverages.",
+      "Limit one discount beverage per customer per visit.",
+      "Must be presented at time of purchase.",
+      "Not valid on mobile orders or Starbucks app purchases.",
+      "Offer not transferable; no cash or credit back.",
+      "Not valid in airport or licensed locations.",
+      "Subject to availability of menu items."
+    ]
   },
   {
     id: "SBX8",
@@ -226,6 +316,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "both",
     eligibleItemsDescription: "Bagged coffee and coffee pods",
     expiration: { endDate: "2024-09-30" },
+    termsAndConditions: [
+      "Applicable to bagged coffee and coffee pods purchased in-store or online.",
+      "Excludes instant coffee, ready-to-drink, and gift sets.",
+      "Cannot be combined with rewards or loyalty member discounts.",
+      "Coupon required at time of payment.",
+      "Valid only at participating Starbucks locations.",
+      "Discount does not apply to taxes.",
+      "Quantities may be limited per customer."
+    ]
   },
   {
     id: "SBX10",
@@ -238,6 +337,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "inStore",
     eligibleItemsDescription: "Cold brew beverages",
     expiration: { endDate: "2024-08-31" },
+    termsAndConditions: [
+      "Valid for cold brew beverages only.",
+      "Cannot be applied to handmade customizations.",
+      "No rain checks; valid while supplies last.",
+      "Discount does not apply to Starbucks Reserve stores.",
+      "Not combinable with other beverage discounts or coupons.",
+      "Redemption limited to one per customer per visit.",
+      "Coupon void if altered, copied, or reproduced."
+    ]
   },
 
   // Ulta Beauty (2 coupons)
@@ -252,6 +360,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "online",
     eligibleItemsDescription: "See Ulta exclusions for prestige brands",
     expiration: { endDate: "2024-11-30" },
+    termsAndConditions: [
+      "One-time use per customer per offer period.",
+      "Selected prestige brands and products are excluded.",
+      "Valid for online orders shipped within the US.",
+      "Cannot be used to purchase Ulta gift cards.",
+      "Offer not valid on salon or beauty services.",
+      "Coupon must be applied before payment is processed.",
+      "Ulta reserves the right to revoke coupon in case of fraud."
+    ]
   },
   {
     id: "ULTA15SKIN",
@@ -264,6 +381,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "online",
     eligibleItemsDescription: "Serums & moisturizers",
     expiration: { endDate: "2024-09-15" },
+    termsAndConditions: [
+      "Offer valid on select serums and moisturizers only.",
+      "Cannot be applied to doorbusters or sale items.",
+      "Coupon code is required at checkout.",
+      "Returns on discounted items subject to adjusted refund.",
+      "Offer valid only during promotional period.",
+      "Applies to merchandise subtotal prior to taxes.",
+      "Ulta employees are not eligible for this offer."
+    ]
   },
 
   // Nike (3 coupons)
@@ -278,6 +404,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "online",
     eligibleItemsDescription: "Running shoes",
     expiration: { endDate: "2024-08-31" },
+    termsAndConditions: [
+      "Offer valid for select running shoe styles at Nike.com.",
+      "Cannot be combined with Nike Membership rewards.",
+      "SHOE25 discount cannot be used toward prior purchases.",
+      "Limit 2 discounted pairs per customer.",
+      "Not valid on Nike gift card purchases.",
+      "No substitutions or cash alternative offered.",
+      "Void where prohibited or taxed."
+    ]
   },
   {
     id: "NIKE10",
@@ -290,6 +425,16 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "both",
     eligibleItemsDescription: "Nike training apparel",
     expiration: { endDate: "2024-12-31" },
+    termsAndConditions: [
+      "Valid for Nike training apparel only.",
+      "Offer may be redeemed online or in-store.",
+      "Cannot be combined with other discounts or Nike Member rewards.",
+      "Limit one use per customer.",
+      "Not valid on prior purchases or gift cards.",
+      "No cash value; not redeemable for cash.",
+      "Coupon must be presented or entered at checkout.",
+      "Nike reserves the right to modify or cancel the offer at any time."
+    ]
   },
   {
     id: "NIKE15",
@@ -306,6 +451,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
       description: "Min spend $60",
     },
     expiration: { endDate: "2024-10-01" },
+    termsAndConditions: [
+      "Valid for online purchases over $60 before taxes and shipping.",
+      "Cannot be combined with other promo codes or discounts.",
+      "Not valid towards gift cards or previous purchases.",
+      "Limit one coupon code per order.",
+      "Coupon code must be entered at checkout.",
+      "Offer valid through stated expiration date only.",
+      "Void where prohibited or restricted by law."
+    ]
   },
 
   // Gap (3 coupons)
@@ -320,6 +474,16 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "online",
     eligibleItemsDescription: "New arrivals only",
     expiration: { endDate: "2024-09-30" },
+    termsAndConditions: [
+      "Valid only on new arrival merchandise at gap.com.",
+      "Not valid in Gap Outlet or Factory stores.",
+      "Cannot be combined with other percentage-off offers.",
+      "Limit one use per customer per promotional period.",
+      "Coupon code must be entered at checkout.",
+      "Excludes gift cards, sale items, and previous purchases.",
+      "No cash value; not transferrable.",
+      "Returns may void savings on eligible items."
+    ]
   },
   {
     id: "GAP15",
@@ -332,6 +496,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "both",
     eligibleItemsDescription: "Men’s and women’s essentials",
     expiration: { endDate: "2024-10-31" },
+    termsAndConditions: [
+      "Offer valid for select men’s and women’s essentials.",
+      "May be used online or in-store at participating Gap locations.",
+      "Cannot be combined with other sitewide or storewide offers.",
+      "Coupon must be presented or code entered at checkout.",
+      "One use per customer; not valid on previous purchases.",
+      "No cash back; non-transferable.",
+      "Offer subject to change or cancellation at any time."
+    ]
   },
   {
     id: "GAP10",
@@ -344,5 +517,15 @@ export const DEFAULT_COUPONS: Coupon[] = [
     redemptionMethod: "online",
     eligibleItemsDescription: "GAPKids collection",
     expiration: { endDate: "2024-12-31" },
+    termsAndConditions: [
+      "Offer valid only on GAPKids merchandise purchased online.",
+      "Discount applies to qualifying full-priced items only.",
+      "Not valid on clearance or sale items.",
+      "Code must be entered at time of purchase.",
+      "No cash value; cannot be exchanged for cash or gift cards.",
+      "One time use per account.",
+      "Returns may forfeit coupon savings.",
+      "Offer void where prohibited."
+    ]
   },
 ];

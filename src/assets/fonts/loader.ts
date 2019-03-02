@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import { Geist, Geist_Mono, Libre_Barcode_128 } from "next/font/google";
 
 export const circularStd = localFont({
   variable: "--font-circular",
@@ -48,3 +49,14 @@ export const circularStd = localFont({
   ],
 });
 
+export const libreBarcode128 = Libre_Barcode_128({
+  subsets: ["latin"],
+  variable: "--font-barcode",
+  weight: "400",
+  display: "swap",
+});
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
+
+export const fontVariables = `${circularStd.variable} ${geist.variable} ${geistMono.variable}`;

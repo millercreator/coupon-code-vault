@@ -26,6 +26,7 @@ export interface Coupon {
     startDate?: string          // ISO date string for when coupon becomes valid
     endDate: string             // ISO date string for expiry (required)
   }
+  termsAndConditions: string[] // Optional array of terms and conditions
 }
 
 export interface Store {

@@ -1,4 +1,5 @@
 import type { Coupon } from "./types";
+import { formatCurrency } from "./utils";
 
 /**
  * Validates that a value is an array of Coupon objects
@@ -65,3 +66,31 @@ export function groupCouponsByStore(
   return storeGroups;
 }
 
+export function formatDiscountValue(coupon: Coupon) {
+  const { type, value, currency = "USD" } = coupon.discount;
+  if (type === "percent") return `${+value}%`;
+  if (type === "amount" && Number.isFinite(+value)) {
+    return formatCurrency(+value, currency);
+  }
+
+  return `${value}`;
+}
+
+export function getSpendThresholdLabel(coupon: Coupon) {
+  if (coupon.suggestedSpend && Number.isFinite(coupon.suggestedSpend.amount)) {
+    return formatCurrency(
+      coupon.suggestedSpend.amount,
+      coupon.suggestedSpend.currency ?? "USD"
+    );
+  }
+  if (
+    coupon.minimumRequirement &&
+    Number.isFinite(coupon.minimumRequirement.amount)
+  ) {
+    return formatCurrency(
+      coupon.minimumRequirement.amount ?? 0,
+      coupon.minimumRequirement.currency ?? "USD"
+    );
+  }
+  return null;
+}
