@@ -6,6 +6,8 @@ import AppShell from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { fontVariables } from "@/assets/fonts/loader";
 import { ViewTransitions } from "next-view-transitions";
+import Footer from "@/components/footer";
+
 import "./globals.css";
 
 export const metadata: Metadata = {

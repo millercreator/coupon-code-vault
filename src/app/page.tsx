@@ -7,6 +7,7 @@ import { StoreGroupHeader } from "@/components/store-group-header";
 import { stores } from "@/data/placeholders";
 import { useCoupons } from "@/hooks/use-coupons";
 import { groupCouponsByStore } from "@/lib/coupon-utils";
+import Footer from "@/components/footer";
 
 export default function Home() {
   const { coupons, activeStoreId, setActiveStoreId, mounted } = useCoupons();
@@ -60,7 +61,7 @@ export default function Home() {
           {activeStore ? activeStore.name : "Store"}
         </h3>
       </div>
-      <div className="max-w-lg mx-auto pb-[100vh]">
+      <div className="max-w-xl mx-auto pb-[100vh]">
         {coupons.length > 0 ? (
           (() => {
             const storeGroups = groupCouponsByStore(coupons);
@@ -85,6 +86,7 @@ export default function Home() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

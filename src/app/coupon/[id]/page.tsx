@@ -15,6 +15,7 @@ import {
 } from "@/lib/coupon-utils";
 import { formatDate } from "@/lib/utils";
 import CheckCircleSolid from "@/assets/check-circle.svg";
+import Footer from "@/components/footer";
 
 type TransitionState = "revealing" | "content" | "complete";
 type Position = { x: number; y: number } | null;
@@ -163,7 +164,7 @@ export default function CouponDetailPage() {
               <div className="w-full space-y-4">
                 <Badge
                   variant="outline"
-                  className="py-2.5 px-4 border-foreground"
+                  className="py-2.5 px-4 text-sm border-foreground"
                 >
                   one-time use
                 </Badge>
@@ -196,7 +197,7 @@ export default function CouponDetailPage() {
                         Min. Spend
                       </span>
                     </div>
-                    <Badge className="rounded-full px-3 py-1 text-sm font-semibold">
+                    <Badge className="rounded-full px-3 py-1 text-base font-semibold">
                       <ArrowUpSolid className="size-4 transition-colors duration-150" />
                       {spendDisplay}
                     </Badge>
@@ -271,6 +272,7 @@ export default function CouponDetailPage() {
                 </div>
               </div>
             </div>
+            <Footer />
           </motion.div>
         )}
       </AnimatePresence>
