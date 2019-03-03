@@ -146,7 +146,7 @@ export default function CouponDetailPage() {
         {(transitionState === "content" || transitionState === "complete") && (
           <motion.div
             key="content"
-            className="relative z-50 min-h-screen flex flex-col items-center justify-center p-6 max-w-md mx-auto"
+            className="relative z-50 min-h-screen flex flex-col items-center justify-center p-6 "
             style={{
               backgroundColor: background,
               color: foreground,
@@ -159,7 +159,7 @@ export default function CouponDetailPage() {
             }}
             onAnimationComplete={() => setTransitionState("complete")}
           >
-            <div className="w-full ">
+            <div className="w-full max-w-md mx-auto">
               <div className="w-full space-y-4">
                 <Badge
                   variant="outline"
@@ -203,70 +203,72 @@ export default function CouponDetailPage() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {coupon.discountDescription && (
-              <p className="w-full opacity-60 py-6">
-                {coupon.discountDescription}
-              </p>
-            )}
+              {coupon.discountDescription && (
+                <p className="w-full opacity-60 py-6">
+                  {coupon.discountDescription}
+                </p>
+              )}
+              <div className="space-y-6">
+                <div className="w-full">
+                  <h3 className="font-semibold mb-4">Terms & Conditions</h3>
+                  <ul className="space-y-3">
+                    {(coupon.termsAndConditions ?? []).map((term, index) => (
+                      <li
+                        key={index}
+                        className="flex items-start gap-2 text-sm"
+                      >
+                        <CheckCircleSolid className="size-5 flex-shrink-0" />
+                        <span>{term}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            <div className="space-y-6">
-              <div className="w-full">
-                <h3 className="font-semibold mb-4">Terms & Conditions</h3>
-                <ul className="space-y-3">
-                  {(coupon.termsAndConditions ?? []).map((term, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <CheckCircleSolid className="size-5 flex-shrink-0" />
-                      <span>{term}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div
-                className="w-full border-t-2 border-dashed"
-                style={{
-                  borderColor: `${foreground ?? "#fff"}`,
-                }}
-              />
-
-              <div className="w-full flex flex-col items-center space-y-3">
-                <span
-                  className="text-sm"
-                  style={{
-                    borderColor: `${foreground ?? "#fff"}40`,
-                  }}
-                >
-                  Coupon code
-                </span>
                 <div
-                  onClick={handleCopyCode}
-                  className="w-full rounded-lg px-4 py-3 flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                  className="w-full border-t-2 border-dashed"
                   style={{
-                    background: foreground ?? "#fff",
+                    borderColor: `${foreground ?? "#fff"}`,
                   }}
-                >
-                  <Copy
-                    style={{ color: background }}
-                    strokeWidth={2}
-                    className="w-4 h-4"
-                  />
+                />
+
+                <div className="w-full flex flex-col items-center space-y-3">
                   <span
-                    className="font-mono font-semibold text-base tracking-wider"
+                    className="text-sm"
                     style={{
-                      color: backgroundColor || "#000000",
+                      borderColor: `${foreground ?? "#fff"}40`,
                     }}
                   >
-                    {coupon.code}
+                    Coupon code
                   </span>
+                  <div
+                    onClick={handleCopyCode}
+                    className="w-full rounded-lg px-4 py-3 flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                    style={{
+                      background: foreground ?? "#fff",
+                    }}
+                  >
+                    <Copy
+                      style={{ color: background }}
+                      strokeWidth={2}
+                      className="w-4 h-4"
+                    />
+                    <span
+                      className="font-mono font-semibold text-base tracking-wider"
+                      style={{
+                        color: backgroundColor || "#000000",
+                      }}
+                    >
+                      {coupon.code}
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="w-full flex justify-center mb-4 col-span-1 mx-auto">
-                <p className="font-barcode text-[64px] tracking-[.1em]">
-                  {coupon.code + coupon.code}
-                </p>
+                <div className="w-full flex justify-center mb-4 col-span-1 mx-auto">
+                  <p className="font-barcode text-[64px] tracking-[.1em]">
+                    {coupon.code}
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>

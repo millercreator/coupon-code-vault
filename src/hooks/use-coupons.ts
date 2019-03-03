@@ -2,21 +2,14 @@ import { useState, useEffect, useMemo } from "react";
 import type { Coupon } from "@/lib/types";
 import { DEFAULT_COUPONS } from "@/data/placeholders";
 import { stores } from "@/data/placeholders";
-import { groupCouponsByStoreOrder, isCouponArray } from "@/lib/coupon-utils";
-import { useLocalStorage } from "./use-local-storage";
+import { groupCouponsByStoreOrder } from "@/lib/coupon-utils";
 
 export function useCoupons() {
   const [activeStoreId, setActiveStoreId] = useState<string | null>(null);
+  const mounted = true;
 
-  const {
-    value: rawCoupons,
-    setValue: setRawCoupons,
-    mounted,
-  } = useLocalStorage<Coupon[]>({
-    key: "coupons",
-    defaultValue: DEFAULT_COUPONS,
-    validate: isCouponArray,
-  });
+  // Always use the default coupons, skip local storage entirely
+  const rawCoupons = DEFAULT_COUPONS;
 
   const coupons = useMemo(() => {
     if (rawCoupons.length === 0) return rawCoupons;
@@ -32,7 +25,7 @@ export function useCoupons() {
     }
   }, [coupons, mounted, activeStoreId]);
 
-  const setCoupons = setRawCoupons;
+  const setCoupons = () => {}; // noop
 
   return {
     coupons,
