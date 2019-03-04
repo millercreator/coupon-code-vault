@@ -11,7 +11,7 @@ interface StoreGroupHeaderProps {
  */
 export function StoreGroupHeader({ store }: StoreGroupHeaderProps) {
   return (
-    <div className="sticky top-[120px] z-10 bg-background py-4 px-6">
+    <div className="sticky top-[120px] z-10 bg-background py-4 px-6 ">
       <div className="flex items-center gap-3">
         {store.logoUrl && (
           <Image

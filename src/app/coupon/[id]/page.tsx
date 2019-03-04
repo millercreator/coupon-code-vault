@@ -15,6 +15,7 @@ import CheckCircleSolid from "@/assets/check-circle.svg";
 import ArrowUpSolid from "@/assets/arrowup.svg";
 import Footer from "@/components/footer";
 import { RevealTransition, Position } from "@/components/reveal-transition";
+import { CountdownTimer } from "@/components/countdown-timer"; // <-- Import CountdownTimer
 
 export default function CouponDetailPage() {
   const params = useParams();
@@ -62,7 +63,7 @@ export default function CouponDetailPage() {
   return (
     <RevealTransition background={background} clickPosition={clickPosition}>
       <div
-        className="flex flex-col items-center justify-center p-6 min-h-screen"
+        className="flex flex-col items-center justify-center p-6 min-h-screen mb-20"
         style={{
           backgroundColor: background,
           color: foreground,
@@ -110,6 +111,15 @@ export default function CouponDetailPage() {
               </div>
             </div>
           </div>
+
+          {coupon.expiration?.endDate && (
+            <div>
+              <CountdownTimer
+                endDate={coupon.expiration.endDate}
+                className="ml-7 group-hover:text-background"
+              />
+            </div>
+          )}
 
           {coupon.discountDescription && (
             <p className="w-full opacity-60 py-6">

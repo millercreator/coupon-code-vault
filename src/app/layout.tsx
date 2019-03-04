@@ -37,7 +37,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://v0-coupon-code-vault-app.vercel.app/"),
+  metadataBase: new URL("https://my-coupon-vault.vercel.app/"),
   title: {
     default: "CouponVault - Secure Digital Coupon Storage & Management",
     template: "%s | CouponVault",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     "deals",
   ],
   authors: [
-    { name: "Joshua Miller", url: "https://v0-coupon-code-vault-app.vercel.app/" },
+    { name: "Joshua Miller", url: "https://my-coupon-vault.vercel.app/" },
   ],
   creator: "Joshua Miller",
   publisher: "Joshua miller",
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     title: "CouponVault - Secure Digital Coupon Storage & Management",
     description:
       "Safely store, manage, and organize all your digital coupons. Fast, secure, and always accessible—never miss another saving opportunity.",
-    url: "https://v0-coupon-code-vault-app.vercel.app/",
+    url: "https://my-coupon-vault.vercel.app/",
     siteName: "CouponVault",
     images: [
       {
@@ -120,4 +120,3 @@ export const viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#251c16" },
   ],
 };
-

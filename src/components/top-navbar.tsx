@@ -28,7 +28,7 @@ export default function TopNavbar(props: TopNavbarProps) {
             className="h-7 w-7 p-1"
             aria-label="Search"
           >
-            <Search />
+            <Search className="size-6" />
           </Button>
           <Button
             variant="ghost"
@@ -37,7 +37,7 @@ export default function TopNavbar(props: TopNavbarProps) {
             className="h-7 w-7 p-1"
             aria-label="Menu"
           >
-            <Menu />
+            <Menu className="size-6" />
           </Button>
         </div>
       </div>

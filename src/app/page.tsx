@@ -81,7 +81,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen mx-auto max-w-2xl">
-      <div className="z-50 sticky top-0 bg-background max-w-[720px] mx-auto py-4 space-y-2">
+      <div className="z-50 sticky top-0 bg-background max-w-xl mx-auto py-4 space-y-2 border-b">
         <SnapCarousel
           items={stores}
           activeId={activeStoreId || coupons[0]?.storeId || stores[0].id}
@@ -140,7 +140,7 @@ export default function Home() {
                   }}
                 >
                   {store && <StoreGroupHeader store={store} />}
-                  <div>
+                  <div className="divide-y divide-dashed">
                     {group.coupons.map((coupon, idx) => (
                       <CouponListCard coupon={coupon} key={coupon.id} />
                     ))}
@@ -155,7 +155,7 @@ export default function Home() {
           </div>
         )}
       </div>
-      <Footer />
+      <Footer fixed />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Expand, CalendarClock } from "lucide-react";
+import { Info, CalendarClock } from "lucide-react";
 import type { Coupon } from "@/lib/types";
 import ArrowUpSolid from "@/assets/arrowup.svg";
 import { Button } from "./ui/button";
@@ -11,6 +11,7 @@ import {
   formatDiscountValue,
   getSpendThresholdLabel,
 } from "@/lib/coupon-utils";
+import { CountdownTimer } from "./countdown-timer";
 
 type CouponListCardProps = {
   coupon: Coupon;
@@ -47,7 +48,7 @@ export function CouponListCard({ coupon }: CouponListCardProps) {
   return (
     <div
       onClick={handleClick}
-      className="relative group px-6 py-4 w-full flex flex-col gap-y-4 overflow-hidden md:flex-row md:items-start md:gap-8 transition-colors duration-150 
+      className="relative group px-6 py-6 w-full flex flex-col gap-y-4 overflow-hidden md:flex-row md:items-start md:gap-8 transition-colors duration-150 
       hover:bg-foreground hover:text-background cursor-pointer"
     >
       <div className="absolute inset-0 w-full h-full pointer-events-none">
@@ -78,7 +79,7 @@ export function CouponListCard({ coupon }: CouponListCardProps) {
           className="h-7 w-7 p-1 md:hidden"
           aria-label="Menu"
         >
-          <Expand className="group-hover:text-background transition-colors duration-150" />
+          <Info className="group-hover:text-background transition-colors duration-150" />
         </Button>
       </div>
 
@@ -89,13 +90,26 @@ export function CouponListCard({ coupon }: CouponListCardProps) {
           </p>
 
           <div className="hidden md:block">
-            <Expand className="group-hover:text-background transition-colors duration-150" />
+            <Info className="group-hover:text-background transition-colors duration-150" />
           </div>
         </div>
         <div className="flex w-full justify-between md:items-center">
-          <div className="flex gap-2 items-center text-sm">
-            <CalendarClock className="group-hover:text-background transition-colors duration-150" />
-            <span className="transition-colors duration-150">{expiration}</span>
+          <div className="flex w-full items-center gap-2">
+            <div className="flex gap-2 items-center text-sm">
+              <CalendarClock className="group-hover:text-background transition-colors duration-150" />
+              <span className="transition-colors duration-150">
+                {expiration}
+              </span>
+            </div>
+            <span className="text-[10px]">•</span>
+            {coupon.expiration?.endDate && (
+              <div className="">
+                <CountdownTimer
+                  endDate={coupon.expiration.endDate}
+                  className="group-hover:text-background"
+                />
+              </div>
+            )}
           </div>
           <Badge
             variant="secondary"
