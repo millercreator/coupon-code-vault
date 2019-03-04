@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { Toaster } from "@/components/ui/toaster";
 import AppShell from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { fontVariables } from "@/assets/fonts/loader";
 import { ViewTransitions } from "next-view-transitions";
+import InstallPrompt from "@/components/pwa-install-prompt";
+import { Toaster } from "@/components/ui/sonner"
 
 import "./globals.css";
 
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <html lang="en" className={fontVariables} suppressHydrationWarning>
         <body>
           <AppShell />
+          <InstallPrompt />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -24,6 +26,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             disableTransitionOnChange
           >
             {children}
+            <Toaster />
           </ThemeProvider>
           <Toaster />
           <Analytics />
@@ -34,6 +37,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://v0-coupon-code-vault-app.vercel.app/"),
   title: {
     default: "CouponVault - Secure Digital Coupon Storage & Management",
     template: "%s | CouponVault",
@@ -93,10 +97,7 @@ export const metadata: Metadata = {
     images: ["/twitter-card.png"],
     creator: "@couponvault",
   },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#251c16" },
-  ],
+  // themeColor removed, moved to viewport below
   category: "personal finance",
   robots: {
     index: true,
@@ -112,3 +113,11 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
 };
+
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#251c16" },
+  ],
+};
+

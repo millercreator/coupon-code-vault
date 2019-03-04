@@ -17,7 +17,6 @@ export default function AppShell() {
   return (
     <>
       <TopNavbar
-        onAddAction={openAdd}
         onSearchAction={openSearch}
         onMenuAction={openMenu}
       />
