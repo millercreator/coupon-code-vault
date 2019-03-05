@@ -1,14 +1,14 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import AppShell from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { fontVariables } from "@/assets/fonts/loader";
 import { ViewTransitions } from "next-view-transitions";
 import InstallPrompt from "@/components/pwa-install-prompt";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
+import TopNavbar from "@/components/top-navbar";
 
 type RootLayoutProps = { children: ReactNode };
 
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <ViewTransitions>
       <html lang="en" className={fontVariables} suppressHydrationWarning>
         <body>
-          <AppShell />
+          <TopNavbar />
           <InstallPrompt />
           <ThemeProvider
             attribute="class"

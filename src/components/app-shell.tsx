@@ -2,7 +2,6 @@
 
 import TopNavbar from "@/components/top-navbar";
 import SearchModal from "@/components/search-modal";
-// import CouponForm from "@/components/coupon-form";
 import { useState } from "react";
 
 export default function AppShell() {
@@ -17,13 +16,10 @@ export default function AppShell() {
   return (
     <>
       <TopNavbar
-        onSearchAction={openSearch}
-        onMenuAction={openMenu}
       />
       {/* Mount your UI here so it’s controlled on the client */}
       {/* <CouponForm open={addOpen} onOpenChange={setAddOpen} /> */}
       <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
-      {/* <YourMenuSheet open={menuOpen} onOpenChange={setMenuOpen} /> */}
     </>
   );
 }

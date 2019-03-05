@@ -64,7 +64,7 @@ function DialogContent({
         className={cn(
           fullScreen
           ? "fixed inset-0 z-[2147483647] grid h-screen w-screen grid-rows-[auto,1fr] max-w-none rounded-none border-0 bg-background p-0 shadow-none translate-x-0 translate-y-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:slide-out-to-bottom-2 duration-200 will-change-[opacity,transform] motion-reduce:animate-none motion-reduce:transition-none"
-          : "fixed inset-0 left-0 top-0 h-screen w-screen max-w-none sm:max-w-none md:max-w-none lg:max-w-none xl:max-w-none 2xl:max-w-none translate-x-0 translate-y-0 rounded-none border-0 p-0 shadow-none z-[2147483647] bg-background grid grid-rows-[auto,1fr]",
+          : "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
           className
         )}
         {...props}
