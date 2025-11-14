@@ -5,8 +5,7 @@ import Image from "next/image";
 
 import type { Coupon, Store } from "@/lib/types";
 import { SnapCarousel } from "@/components/snap-carousel";
-import SwipeCards from "./swipe-cards";
-import CouponCard from "./coupon-card";
+import { CouponListCard } from "./coupon-list-card";
 
 const stores: Store[] = [
   {
@@ -89,6 +88,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "SPRING10",
     discount: { type: "percent", value: 10 },
     discountDescription: "10% off your entire Target purchase",
+    listSummary: "Refresh pantry staples and save across the whole cart.",
+    suggestedSpend: { amount: 60, currency: "USD" },
     redemptionMethod: "online",
     minimumRequirement: {
       amount: 30,
@@ -103,6 +104,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "TARGET15",
     discount: { type: "percent", value: 15 },
     discountDescription: "15% off select home items at Target",
+    listSummary: "Give your living room a quick glow up with extra savings.",
+    suggestedSpend: { amount: 80, currency: "USD" },
     redemptionMethod: "online",
     minimumRequirement: {
       amount: 50,
@@ -118,6 +121,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "SAVE20TGT",
     discount: { type: "percent", value: 20 },
     discountDescription: "20% off new arrivals at Target",
+    listSummary: "Try the latest collections and snag an instant 20% off.",
+    suggestedSpend: { amount: 75, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "Only for newly listed items",
     expiration: { endDate: "2024-08-31" },
@@ -130,6 +135,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "WMALL12",
     discount: { type: "percent", value: 12 },
     discountDescription: "12% off groceries at Walmart",
+    listSummary: "Stretch the grocery budget on every weekly run.",
+    suggestedSpend: { amount: 120, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Groceries only",
     expiration: { endDate: "2024-09-30" },
@@ -140,6 +147,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "TOYDEAL10",
     discount: { type: "percent", value: 10 },
     discountDescription: "10% off toys at Walmart",
+    listSummary: "Surprise the kids with markdowns on their favorite toys.",
+    suggestedSpend: { amount: 90, currency: "USD" },
     redemptionMethod: "inStore",
     eligibleItemsDescription: "Toys department only",
     expiration: { endDate: "2024-12-31" },
@@ -150,6 +159,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "WELCOME5",
     discount: { type: "percent", value: 5 },
     discountDescription: "5% off any order at Walmart.com",
+    listSummary: "Apply this welcome perk to any online basket.",
+    suggestedSpend: { amount: 60, currency: "USD" },
     redemptionMethod: "online",
     expiration: { endDate: "2024-12-15" },
   },
@@ -161,6 +172,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "TECH20",
     discount: { type: "percent", value: 20 },
     discountDescription: "20% off headphones at Best Buy",
+    listSummary: "Upgrade your listening setup with quick savings on audio.",
+    suggestedSpend: { amount: 150, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "Headphones only",
     expiration: { endDate: "2024-10-10" },
@@ -171,6 +184,9 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "SAVE15BBY",
     discount: { type: "percent", value: 15 },
     discountDescription: "15% off any computer accessory",
+    listSummary:
+      "Grab fresh accessories for the desk without paying full price.",
+    suggestedSpend: { amount: 110, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Mice, keyboards, monitors",
     expiration: { endDate: "2024-12-31" },
@@ -181,6 +197,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "BBY10DEAL",
     discount: { type: "percent", value: 10 },
     discountDescription: "10% off your next purchase at Best Buy",
+    listSummary: "Cover that next tech splurge with an easy 10% drop.",
+    suggestedSpend: { amount: 200, currency: "USD" },
     redemptionMethod: "online",
     minimumRequirement: {
       amount: 100,
@@ -197,6 +215,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "CUP5OFF",
     discount: { type: "percent", value: 5 },
     discountDescription: "5% off in-store drinks at Starbucks",
+    listSummary: "Pick up your daily latte with a little bonus savings.",
+    suggestedSpend: { amount: 15, currency: "USD" },
     redemptionMethod: "inStore",
     eligibleItemsDescription: "All espresso drinks",
     expiration: { endDate: "2024-07-31" },
@@ -207,6 +227,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "BEANS8",
     discount: { type: "percent", value: 8 },
     discountDescription: "8% off bagged coffee at Starbucks",
+    listSummary: "Stock the pantry with beans and keep mornings smooth.",
+    suggestedSpend: { amount: 35, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Bagged coffee and coffee pods",
     expiration: { endDate: "2024-09-30" },
@@ -217,6 +239,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "COLD10",
     discount: { type: "percent", value: 10 },
     discountDescription: "10% off cold brews at Starbucks",
+    listSummary: "Cool down with a cold brew and shave off the total.",
+    suggestedSpend: { amount: 20, currency: "USD" },
     redemptionMethod: "inStore",
     eligibleItemsDescription: "Cold brew beverages",
     expiration: { endDate: "2024-08-31" },
@@ -229,6 +253,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "ULTA20",
     discount: { type: "percent", value: 20 },
     discountDescription: "20% off any one qualifying item",
+    listSummary: "Treat yourself to a prestige pick-me-up and take 20% off.",
+    suggestedSpend: { amount: 70, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "See Ulta exclusions for prestige brands",
     expiration: { endDate: "2024-11-30" },
@@ -239,6 +265,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "SKIN15",
     discount: { type: "percent", value: 15 },
     discountDescription: "15% off selected skincare at Ulta",
+    listSummary: "Refresh your skincare shelf with a tidy 15% discount.",
+    suggestedSpend: { amount: 85, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "Serums & moisturizers",
     expiration: { endDate: "2024-09-15" },
@@ -251,6 +279,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "RUN25",
     discount: { type: "percent", value: 25 },
     discountDescription: "25% off all running shoes",
+    listSummary: "Lace up new runners and slice a quarter off the tag.",
+    suggestedSpend: { amount: 130, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "Running shoes",
     expiration: { endDate: "2024-08-31" },
@@ -261,6 +291,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "TRAIN10",
     discount: { type: "percent", value: 10 },
     discountDescription: "10% off new training gear",
+    listSummary: "Refresh the workout wardrobe with an easy 10% savings.",
+    suggestedSpend: { amount: 95, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Nike training apparel",
     expiration: { endDate: "2024-12-31" },
@@ -271,6 +303,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "NKYFALL15",
     discount: { type: "percent", value: 15 },
     discountDescription: "15% off any purchase over $60",
+    listSummary: "Grab seasonal gear and unlock 15% off past $60.",
+    suggestedSpend: { amount: 120, currency: "USD" },
     redemptionMethod: "online",
     minimumRequirement: {
       amount: 60,
@@ -287,6 +321,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "GAPNEW20",
     discount: { type: "percent", value: 20 },
     discountDescription: "20% off new arrivals at GAP",
+    listSummary: "Ease into new-season fits with 20% off fresh drops.",
+    suggestedSpend: { amount: 100, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "New arrivals only",
     expiration: { endDate: "2024-09-30" },
@@ -297,6 +333,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "GAPESS15",
     discount: { type: "percent", value: 15 },
     discountDescription: "15% off essentials at GAP",
+    listSummary: "Re-up on daily essentials and keep 15% in your pocket.",
+    suggestedSpend: { amount: 80, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Men’s and women’s essentials",
     expiration: { endDate: "2024-10-31" },
@@ -307,6 +345,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     code: "GAPKIDS10",
     discount: { type: "percent", value: 10 },
     discountDescription: "10% off GAPKids",
+    listSummary: "Outfit the little ones with a friendly 10% markdown.",
+    suggestedSpend: { amount: 70, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "GAPKids collection",
     expiration: { endDate: "2024-12-31" },
@@ -401,23 +441,7 @@ export default function CouponVault() {
 
   return (
     <div className="min-h-screen mx-auto max-w-2xl">
-      <div>
-        <SwipeCards
-          cards={coupons}
-          onCardEnterFront={(coupon) => {
-            setFrontCoupon(coupon);
-          }}
-          renderCard={(coupon) => {
-            const store = stores.find((s) => s.id === coupon.storeId);
-
-            return <CouponCard coupon={coupon} store={store || null} />;
-          }}
-        />
-      </div>
       <div className="relative max-w-[720px] mx-auto my-10 space-y-2">
-        <h3 className="text-sm text-center ">
-          {getActiveStore() ? getActiveStore()!.name : "Store"}
-        </h3>
         <SnapCarousel
           items={stores}
           activeId={frontCoupon ? frontCoupon.storeId : stores[0].id}
@@ -459,6 +483,20 @@ export default function CouponVault() {
             }
           }}
         />
+        <h3 className="text-sm text-center ">
+          {getActiveStore() ? getActiveStore()!.name : "Store"}
+        </h3>
+      </div>
+      <div className="divide-y divide-border divide-dashed">
+        {coupons.length > 0 ? (
+          coupons.map((coupon) => (
+            <CouponListCard key={coupon.id} coupon={coupon} />
+          ))
+        ) : (
+          <div className="p-6 text-center text-sm text-muted-foreground">
+            No coupons saved yet. Swipe to add some deals.
+          </div>
+        )}
       </div>
     </div>
   );

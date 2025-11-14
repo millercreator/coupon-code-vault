@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "@/components/ui/toaster";
 import AppShell from "@/components/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
+import { circularStd } from "@/assets/fonts/loader";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -30,7 +31,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="en"
-      className={`${geist.variable} ${geistMono.variable}`}
+      className={`${circularStd.variable} ${geist.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <body className="font-sans antialiased">

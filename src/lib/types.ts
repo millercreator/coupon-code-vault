@@ -8,6 +8,12 @@ export interface Coupon {
     currency?: string           // Currency code if type is amount
   }
   discountDescription: string   // Human friendly description of discount
+  listSummary?: string          // Short blurb used in list cards
+  suggestedSpend?: {
+    amount: number              // Suggested spend to highlight potential savings
+    currency?: string           // Currency for the suggested spend
+    description?: string        // Optional helper text for UI
+  }
   redemptionMethod: 'online' | 'inStore' | 'both' | string  // How this coupon can be redeemed
   minimumRequirement?: {
     amount?: number             // Minimum cart/subtotal amount (if any)
