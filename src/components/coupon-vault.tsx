@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 
 import type { Coupon, Store } from "@/lib/types";
@@ -87,8 +87,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "target",
     code: "SPRING10",
     discount: { type: "percent", value: 10 },
-    discountDescription: "10% off your entire Target purchase",
-    listSummary: "Refresh pantry staples and save across the whole cart.",
+    discountDescription:
+      "Enjoy 10% off your entire Target purchase while you refresh pantry staples and save across the whole cart for a fully stocked home.",
     suggestedSpend: { amount: 60, currency: "USD" },
     redemptionMethod: "online",
     minimumRequirement: {
@@ -103,8 +103,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "target",
     code: "TARGET15",
     discount: { type: "percent", value: 15 },
-    discountDescription: "15% off select home items at Target",
-    listSummary: "Give your living room a quick glow up with extra savings.",
+    discountDescription:
+      "Enjoy 15% off select home items at Target as you give your living room a quick glow up with extra savings and a fresh seasonal vibe.",
     suggestedSpend: { amount: 80, currency: "USD" },
     redemptionMethod: "online",
     minimumRequirement: {
@@ -120,8 +120,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "target",
     code: "SAVE20TGT",
     discount: { type: "percent", value: 20 },
-    discountDescription: "20% off new arrivals at Target",
-    listSummary: "Try the latest collections and snag an instant 20% off.",
+    discountDescription:
+      "Enjoy 20% off new arrivals at Target so you can try the latest collections and snag an instant 20% off with every cart refresh.",
     suggestedSpend: { amount: 75, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "Only for newly listed items",
@@ -134,8 +134,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "walmart",
     code: "WMALL12",
     discount: { type: "percent", value: 12 },
-    discountDescription: "12% off groceries at Walmart",
-    listSummary: "Stretch the grocery budget on every weekly run.",
+    discountDescription:
+      "Enjoy 12% off groceries at Walmart and stretch the weekly food budget on every run without trimming the list.",
     suggestedSpend: { amount: 120, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Groceries only",
@@ -146,8 +146,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "walmart",
     code: "TOYDEAL10",
     discount: { type: "percent", value: 10 },
-    discountDescription: "10% off toys at Walmart",
-    listSummary: "Surprise the kids with markdowns on their favorite toys.",
+    discountDescription:
+      "Enjoy 10% off toys at Walmart and surprise the kids with markdowns on their favorite characters and playsets all season.",
     suggestedSpend: { amount: 90, currency: "USD" },
     redemptionMethod: "inStore",
     eligibleItemsDescription: "Toys department only",
@@ -158,8 +158,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "walmart",
     code: "WELCOME5",
     discount: { type: "percent", value: 5 },
-    discountDescription: "5% off any order at Walmart.com",
-    listSummary: "Apply this welcome perk to any online basket.",
+    discountDescription:
+      "Enjoy 5% off any order at Walmart.com by applying this welcome perk to any online basket for an instant win.",
     suggestedSpend: { amount: 60, currency: "USD" },
     redemptionMethod: "online",
     expiration: { endDate: "2024-12-15" },
@@ -171,8 +171,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "best_buy",
     code: "TECH20",
     discount: { type: "percent", value: 20 },
-    discountDescription: "20% off headphones at Best Buy",
-    listSummary: "Upgrade your listening setup with quick savings on audio.",
+    discountDescription:
+      "Enjoy 20% off headphones at Best Buy and upgrade your listening setup with quick savings on audio gear and accessories.",
     suggestedSpend: { amount: 150, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "Headphones only",
@@ -183,9 +183,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "best_buy",
     code: "SAVE15BBY",
     discount: { type: "percent", value: 15 },
-    discountDescription: "15% off any computer accessory",
-    listSummary:
-      "Grab fresh accessories for the desk without paying full price.",
+    discountDescription:
+      "Enjoy 15% off any computer accessory so you can grab fresh gear for the desk without paying full price for the upgrade.",
     suggestedSpend: { amount: 110, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Mice, keyboards, monitors",
@@ -196,8 +195,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "best_buy",
     code: "BBY10DEAL",
     discount: { type: "percent", value: 10 },
-    discountDescription: "10% off your next purchase at Best Buy",
-    listSummary: "Cover that next tech splurge with an easy 10% drop.",
+    discountDescription:
+      "Enjoy 10% off your next purchase at Best Buy and cover that next tech splurge with an easy 10% drop on checkout.",
     suggestedSpend: { amount: 200, currency: "USD" },
     redemptionMethod: "online",
     minimumRequirement: {
@@ -214,8 +213,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "starbucks",
     code: "CUP5OFF",
     discount: { type: "percent", value: 5 },
-    discountDescription: "5% off in-store drinks at Starbucks",
-    listSummary: "Pick up your daily latte with a little bonus savings.",
+    discountDescription:
+      "Enjoy 5% off in-store drinks at Starbucks and pick up your daily latte with a little bonus savings for every coffee run.",
     suggestedSpend: { amount: 15, currency: "USD" },
     redemptionMethod: "inStore",
     eligibleItemsDescription: "All espresso drinks",
@@ -226,8 +225,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "starbucks",
     code: "BEANS8",
     discount: { type: "percent", value: 8 },
-    discountDescription: "8% off bagged coffee at Starbucks",
-    listSummary: "Stock the pantry with beans and keep mornings smooth.",
+    discountDescription:
+      "Enjoy 8% off bagged coffee at Starbucks so you can stock the pantry with beans and keep mornings smooth and energized.",
     suggestedSpend: { amount: 35, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Bagged coffee and coffee pods",
@@ -238,8 +237,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "starbucks",
     code: "COLD10",
     discount: { type: "percent", value: 10 },
-    discountDescription: "10% off cold brews at Starbucks",
-    listSummary: "Cool down with a cold brew and shave off the total.",
+    discountDescription:
+      "Enjoy 10% off cold brews at Starbucks and cool down with a chilly sip while shaving a bit off every total.",
     suggestedSpend: { amount: 20, currency: "USD" },
     redemptionMethod: "inStore",
     eligibleItemsDescription: "Cold brew beverages",
@@ -252,8 +251,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "ulta_beauty",
     code: "ULTA20",
     discount: { type: "percent", value: 20 },
-    discountDescription: "20% off any one qualifying item",
-    listSummary: "Treat yourself to a prestige pick-me-up and take 20% off.",
+    discountDescription:
+      "Enjoy 20% off any one qualifying item and treat yourself to a prestige pick-me-up while taking 20% off the glam splurge.",
     suggestedSpend: { amount: 70, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "See Ulta exclusions for prestige brands",
@@ -264,8 +263,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "ulta_beauty",
     code: "SKIN15",
     discount: { type: "percent", value: 15 },
-    discountDescription: "15% off selected skincare at Ulta",
-    listSummary: "Refresh your skincare shelf with a tidy 15% discount.",
+    discountDescription:
+      "Enjoy 15% off selected skincare at Ulta and refresh your shelf with a tidy discount on serums and moisturizers.",
     suggestedSpend: { amount: 85, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "Serums & moisturizers",
@@ -278,8 +277,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "nike",
     code: "RUN25",
     discount: { type: "percent", value: 25 },
-    discountDescription: "25% off all running shoes",
-    listSummary: "Lace up new runners and slice a quarter off the tag.",
+    discountDescription:
+      "Enjoy 25% off all running shoes so you can lace up new runners and slice a quarter off the tag on every pace.",
     suggestedSpend: { amount: 130, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "Running shoes",
@@ -290,8 +289,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "nike",
     code: "TRAIN10",
     discount: { type: "percent", value: 10 },
-    discountDescription: "10% off new training gear",
-    listSummary: "Refresh the workout wardrobe with an easy 10% savings.",
+    discountDescription:
+      "Enjoy 10% off new training gear and refresh the workout wardrobe with an easy savings boost on every outfit.",
     suggestedSpend: { amount: 95, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Nike training apparel",
@@ -302,8 +301,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "nike",
     code: "NKYFALL15",
     discount: { type: "percent", value: 15 },
-    discountDescription: "15% off any purchase over $60",
-    listSummary: "Grab seasonal gear and unlock 15% off past $60.",
+    discountDescription:
+      "Enjoy 15% off any purchase over $60 and grab seasonal gear while unlocking extra savings past the sixty-dollar mark.",
     suggestedSpend: { amount: 120, currency: "USD" },
     redemptionMethod: "online",
     minimumRequirement: {
@@ -320,8 +319,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "gap",
     code: "GAPNEW20",
     discount: { type: "percent", value: 20 },
-    discountDescription: "20% off new arrivals at GAP",
-    listSummary: "Ease into new-season fits with 20% off fresh drops.",
+    discountDescription:
+      "Enjoy 20% off new arrivals at GAP and ease into new-season fits with generous savings on every fresh drop.",
     suggestedSpend: { amount: 100, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "New arrivals only",
@@ -332,8 +331,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "gap",
     code: "GAPESS15",
     discount: { type: "percent", value: 15 },
-    discountDescription: "15% off essentials at GAP",
-    listSummary: "Re-up on daily essentials and keep 15% in your pocket.",
+    discountDescription:
+      "Enjoy 15% off essentials at GAP and re-up on daily basics while keeping a tidy slice of savings in your pocket.",
     suggestedSpend: { amount: 80, currency: "USD" },
     redemptionMethod: "both",
     eligibleItemsDescription: "Men’s and women’s essentials",
@@ -344,8 +343,8 @@ const DEFAULT_COUPONS: Coupon[] = [
     storeId: "gap",
     code: "GAPKIDS10",
     discount: { type: "percent", value: 10 },
-    discountDescription: "10% off GAPKids",
-    listSummary: "Outfit the little ones with a friendly 10% markdown.",
+    discountDescription:
+      "Enjoy 10% off GAPKids and outfit the little ones with a friendly markdown on the pieces they reach for daily.",
     suggestedSpend: { amount: 70, currency: "USD" },
     redemptionMethod: "online",
     eligibleItemsDescription: "GAPKids collection",
@@ -356,8 +355,12 @@ const DEFAULT_COUPONS: Coupon[] = [
 export default function CouponVault() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [frontCoupon, setFrontCoupon] = useState<Coupon | null>(null);
+  const [activeStoreId, setActiveStoreId] = useState<string | null>(null);
 
   const [mounted, setMounted] = useState(false);
+  const couponRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const isScrollingFromCarousel = useRef(false);
 
   /**
    * Get the unique order of storeIds as they appear in the coupons array.
@@ -409,9 +412,94 @@ export default function CouponVault() {
   }
 
   function getActiveStore() {
-    if (!frontCoupon) return null;
-    return stores.find((store) => store.id === frontCoupon.storeId) || null;
+    const storeId = activeStoreId || frontCoupon?.storeId;
+    if (!storeId) return null;
+    return stores.find((store) => store.id === storeId) || null;
   }
+
+  /**
+   * Sets up Intersection Observer to track which coupon card is most visible.
+   * When a coupon from a different store becomes visible, updates the active store.
+   */
+  const setupIntersectionObserver = useCallback(() => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    // Track all visible entries
+    const visibleEntries = new Map<HTMLElement, IntersectionObserverEntry>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Skip if the change came from carousel interaction
+        if (isScrollingFromCarousel.current) {
+          return;
+        }
+
+        // Update the visible entries map
+        entries.forEach((entry) => {
+          if (entry.target instanceof HTMLElement) {
+            if (entry.isIntersecting) {
+              visibleEntries.set(entry.target, entry);
+            } else {
+              visibleEntries.delete(entry.target);
+            }
+          }
+        });
+
+        // Find the entry with the highest intersection ratio (most visible)
+        let mostVisibleEntry: IntersectionObserverEntry | null = null;
+        let maxRatio = 0;
+
+        for (const entry of visibleEntries.values()) {
+          if (entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            mostVisibleEntry = entry;
+          }
+        }
+
+        if (
+          mostVisibleEntry &&
+          mostVisibleEntry.target instanceof HTMLElement
+        ) {
+          const target = mostVisibleEntry.target as HTMLElement;
+          const couponId = target.getAttribute("data-coupon-id");
+          if (couponId) {
+            const coupon = coupons.find((c) => c.id === couponId);
+            if (coupon && coupon.storeId !== activeStoreId) {
+              setActiveStoreId(coupon.storeId);
+            }
+          }
+        }
+      },
+      {
+        root: null,
+        rootMargin: "-20% 0px -20% 0px", // Only trigger when card is in center 60% of viewport
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+      }
+    );
+
+    observerRef.current = observer;
+
+    // Observe all coupon cards
+    couponRefs.current.forEach((element) => {
+      observer.observe(element);
+    });
+  }, [coupons, activeStoreId]);
+
+  /**
+   * Sets a ref for a coupon card element.
+   */
+  const setCouponRef = useCallback(
+    (couponId: string, element: HTMLDivElement | null) => {
+      if (element) {
+        couponRefs.current.set(couponId, element);
+      } else {
+        couponRefs.current.delete(couponId);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -430,8 +518,40 @@ export default function CouponVault() {
       loadedCoupons = DEFAULT_COUPONS;
     }
 
-    setCoupons(loadedCoupons);
-    setFrontCoupon(loadedCoupons[0] || null);
+    // Sort coupons by store order
+    const storeOrder = getUniqueStoreOrder(loadedCoupons);
+    const sortedCoupons = groupCouponsByStoreOrder(loadedCoupons, storeOrder);
+
+    setCoupons(sortedCoupons);
+    const firstCoupon = sortedCoupons[0] || null;
+    setFrontCoupon(firstCoupon);
+    setActiveStoreId(firstCoupon?.storeId || null);
+  }, []);
+
+  // Set up intersection observer when coupons change
+  useEffect(() => {
+    if (mounted && coupons.length > 0) {
+      // Small delay to ensure DOM is ready
+      const timeoutId = setTimeout(() => {
+        setupIntersectionObserver();
+      }, 100);
+
+      return () => {
+        clearTimeout(timeoutId);
+        if (observerRef.current) {
+          observerRef.current.disconnect();
+        }
+      };
+    }
+  }, [mounted, coupons, setupIntersectionObserver]);
+
+  // Cleanup observer on unmount
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
   }, []);
 
   // Don't render until mounted to avoid hydration mismatch
@@ -441,10 +561,10 @@ export default function CouponVault() {
 
   return (
     <div className="min-h-screen mx-auto max-w-2xl">
-      <div className="relative max-w-[720px] mx-auto my-10 space-y-2">
+      <div className="sticky top-0 z-10 bg-background max-w-[720px] mx-auto py-6 space-y-2">
         <SnapCarousel
           items={stores}
-          activeId={frontCoupon ? frontCoupon.storeId : stores[0].id}
+          activeId={activeStoreId || frontCoupon?.storeId || stores[0].id}
           itemSize={64}
           gap={12}
           lockSpacing={6}
@@ -471,7 +591,9 @@ export default function CouponVault() {
             );
           }}
           onChangeAction={(i, store) => {
-            if (store.id !== frontCoupon?.storeId) {
+            if (store.id !== activeStoreId) {
+              isScrollingFromCarousel.current = true;
+              setActiveStoreId(store.id);
               const sortedCoupons = reorganizeCouponsByStore(store.id);
               setCoupons(sortedCoupons);
               const storeCoupons = sortedCoupons.filter(
@@ -479,7 +601,21 @@ export default function CouponVault() {
               );
               if (storeCoupons.length > 0) {
                 setFrontCoupon(storeCoupons[0]);
+                // Scroll to the first coupon of the selected store
+                const firstCouponElement = couponRefs.current.get(
+                  storeCoupons[0].id
+                );
+                if (firstCouponElement) {
+                  firstCouponElement.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }
               }
+              // Reset flag after a short delay
+              setTimeout(() => {
+                isScrollingFromCarousel.current = false;
+              }, 500);
             }
           }}
         />
@@ -487,11 +623,44 @@ export default function CouponVault() {
           {getActiveStore() ? getActiveStore()!.name : "Store"}
         </h3>
       </div>
-      <div className="divide-y divide-border divide-dashed">
+      <div className="max-w-lg mx-auto">
         {coupons.length > 0 ? (
-          coupons.map((coupon) => (
-            <CouponListCard key={coupon.id} coupon={coupon} />
-          ))
+          coupons.map((coupon, index) => {
+            const previousCoupon = index > 0 ? coupons[index - 1] : null;
+            const showStoreLabel =
+              !previousCoupon || previousCoupon.storeId !== coupon.storeId;
+            const store = stores.find((s) => s.id === coupon.storeId);
+
+            return (
+              <div key={coupon.id}>
+                {showStoreLabel && store && (
+                  <div className="sticky top-[120px] z-10 bg-background/95 backdrop-blur-sm py-4 px-6 border-b border-border/40">
+                    <div className="flex items-center gap-3">
+                      {store.logoUrl && (
+                        <Image
+                          src={store.logoUrl}
+                          alt={store.name}
+                          width={24}
+                          height={24}
+                          className="object-contain rounded-full"
+                          unoptimized
+                        />
+                      )}
+                      <h2 className="text-base font-semibold text-foreground">
+                        {store.name}
+                      </h2>
+                    </div>
+                  </div>
+                )}
+                <div
+                  ref={(el) => setCouponRef(coupon.id, el)}
+                  data-coupon-id={coupon.id}
+                >
+                  <CouponListCard coupon={coupon} />
+                </div>
+              </div>
+            );
+          })
         ) : (
           <div className="p-6 text-center text-sm text-muted-foreground">
             No coupons saved yet. Swipe to add some deals.

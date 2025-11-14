@@ -8,7 +8,6 @@ export interface Coupon {
     currency?: string           // Currency code if type is amount
   }
   discountDescription: string   // Human friendly description of discount
-  listSummary?: string          // Short blurb used in list cards
   suggestedSpend?: {
     amount: number              // Suggested spend to highlight potential savings
     currency?: string           // Currency for the suggested spend
