@@ -1,5 +1,5 @@
 <!-- Project Title -->
-# My V0 Project
+# Coupon Code Vault
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.0.0-blue?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19.2.0-61dafb?logo=react)
@@ -17,7 +17,7 @@
 
 ## ✨ Overview
 
-**My V0 Project** is a modern portfolio and coupon aggregation app, built as a **Progressive Web App (PWA)** using [Next.js](https://nextjs.org/), [React 19](https://react.dev/), and [Tailwind CSS](https://tailwindcss.com/). It provides a slick, installable interface for browsing and managing promotional deals from various stores—online or offline, on desktop or mobile.
+**My Coupon code vault** is a modern portfolio and coupon aggregation app, built as a **Progressive Web App (PWA)** using [Next.js](https://nextjs.org/), [React 19](https://react.dev/), and [Tailwind CSS](https://tailwindcss.com/). It provides a slick, installable interface for browsing and managing promotional deals from various stores—online or offline, on desktop or mobile.
 
 🔸 Sleek and responsive, installable PWA experience  
 🔸 Coupons are grouped & filtered by store  
